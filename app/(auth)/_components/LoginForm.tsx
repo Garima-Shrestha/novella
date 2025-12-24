@@ -36,7 +36,7 @@ export default function LoginForm(){
                     <label>Email</label>
                     <input 
                         id="email"
-                        type="email"
+                        type="email"  //  type tells the browser what kind of input this is.
                         autoComplete="email"
                         className="p-2 border" 
                         { ...register("email")} 
@@ -65,7 +65,7 @@ export default function LoginForm(){
 
                     <button 
                         type="submit" 
-                        disabled={isSubmitting || pending}
+                        disabled={isSubmitting || pending}   // If either isSubmitting or pending is true, the button is disabled. 
                         className="bg-blue-800 p-2 text-white rounded"
                     >
                         { isSubmitting || pending ? "Logging in..." : "Log in"}
@@ -73,7 +73,7 @@ export default function LoginForm(){
 
                     <div className="m-2 text-center">
                         Don't have account?
-                        <Link href = "/register" className="text-blue-500 underline">
+                        <Link href = "/register" className="font-semibold hover:underline text-blue-500">
                             Register
                         </Link>
                     </div>
