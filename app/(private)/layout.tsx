@@ -1,55 +1,72 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
+
+const NAV_LINKS = [
+  { href: "/homepage", label: "Home" },
+  { href: "/library", label: "My Library" },
+  { href: "/history", label: "History" },
+];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <div className="min-h-screen bg-white flex flex-col text-slate-900">
 
-      {/* Header */}
+      {/* header */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-[1440px] mx-auto px-10 h-20 flex items-center justify-between">
+        <div className="max-w-[1440px] mx-auto px-10 h-19 flex items-center justify-between">
 
-          {/* Logo */}
+          {/* logo */}
           <Link href="/homepage" className="relative w-32 h-34">
-            <Image
+            <img
               src="/images/logo.png"
               alt="Novella Logo"
-              fill
-              className="object-contain object-left"
-              priority
+              className="object-contain object-left w-full h-full"
             />
           </Link>
 
-          {/* Nav */}
+          {/* nav */}
           <div className="flex items-center gap-10">
-            <Link href="/homepage" className="text-xs font-semibold text-blue-900 uppercase tracking-wider">
-              Home
-            </Link>
-            <Link href="/library" className="text-xs font-medium text-blue-700 hover:text-blue-900 transition">
-              My Library
-            </Link>
-            <Link href="/history" className="text-xs font-medium text-blue-700 hover:text-blue-900 transition">
-              History
-            </Link>
+            {NAV_LINKS.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`text-xs uppercase tracking-wider transition ${
+                    isActive
+                      ? "font-semibold text-blue-900"
+                      : "font-normal text-blue-700 hover:text-blue-900"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
 
-          {/* Profile */}
+          {/* profile */}
           <div className="relative">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="relative w-9 h-9 rounded-full overflow-hidden border border-gray-300 hover:border-blue-900 transition"
+              className="relative w-9 h-9 rounded-full overflow-hidden border border-gray-300 hover:border-blue-900 transition flex items-center justify-center bg-gray-200"
+              aria-haspopup="true"
+              aria-expanded={isDropdownOpen}
             >
-              <Image
-                src="/images/profile.jpg"  
-                alt="User Profile"
-                fill
-                className="object-cover"
-              />
+              {/* SVG icon instead of image */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-6 h-6 text-gray-600"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+              </svg>
             </button>
 
             {isDropdownOpen && (
@@ -73,11 +90,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </div>
       </header>
 
-      {/* Main content */}
+      {/* main content */}
       <main className="flex-grow">{children}</main>
 
-
-            {/* Footer */}
+      {/* footer */}
       <footer className="bg-white border-t border-gray-200">
         <div className="max-w-[1440px] mx-auto px-10 py-5 flex flex-col md:flex-row items-center justify-between gap-2 md:gap-0">
           
