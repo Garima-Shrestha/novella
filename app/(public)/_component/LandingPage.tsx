@@ -130,7 +130,6 @@ export default function LandingPage() {
 
             <div className="bg-[#002a3a] p-12 rounded-2xl border border-slate-700/50 relative overflow-hidden shadow-2xl">
               <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-[#1e60ff]"></div>
-              {/* Italic quote font size reduced as requested */}
               <p className="italic text-slate-300 text-base mb-8 leading-relaxed">
                 "The ability to keep my highlights after the rental ended was a game changer. I didn't have to buy the whole book just for a few vital quotes."
               </p>

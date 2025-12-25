@@ -109,7 +109,7 @@ export default function LoginForm(){
     const [pending, setTransition] = useTransition()
 
     const onSubmit = async (data: LoginType) => { 
-        alert(data.email)
+        router.push("/homepage");
     }
 
     return(
