@@ -153,7 +153,6 @@ export default function RegisterForm() {
     const [pending, setTransition] = useTransition();
 
     const onSubmit = async (data: RegisterType) => { 
-        alert(data.email);
         router.push("/login");
     };
 

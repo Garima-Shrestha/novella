@@ -116,7 +116,7 @@ export default function LoginForm(){
         <div className="h-screen w-screen overflow-hidden flex font-sans bg-white">
             
             {/* LEFT SIDE: Branding */}
-            <div className="hidden lg:flex lg:w-[42%] bg-[#001F2B] flex-col justify-center px-16 xl:px-20 relative">
+            <div className="hidden lg:flex lg:w-[42%] bg-[#001F2B] flex-col justify-start pt-24 px-16 xl:px-20 relative">
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2000')] bg-cover bg-center opacity-10 grayscale"></div>
                 <div className="relative z-10">
                     <div className="mb-8">
@@ -135,24 +135,26 @@ export default function LoginForm(){
             </div>
 
             {/* RIGHT SIDE: Form */}
-            <div className="w-full lg:w-[58%] flex items-center justify-center bg-white px-6">
-                <div className="w-full max-w-[320px]">
+            {/* <div className="w-full lg:w-[58%] flex items-center justify-center bg-white px-6">
+                <div className="w-full max-w-[320px]"> */}
+            <div className="w-full lg:w-[58%] flex items-center justify-center bg-slate-50 px-6">
+                <div className="w-full max-w-[380px] bg-white p-10 rounded-2xl shadow-sm border border-slate-100"> {/* for card */}
                     <div className="mb-10 text-left">
                         <h1 className="text-2xl font-bold text-[#001F2B]">Login</h1>
                         <p className="text-slate-500 text-xs mt-1">Access your account to continue.</p>
                     </div>
 
-                    <form onSubmit={ handleSubmit(onSubmit)} className="flex flex-col gap-5">
+                    <form onSubmit={ handleSubmit(onSubmit)} className="flex flex-col gap-4">
                         
                         {/* Email */}
-                        <div className="flex flex-col gap-1.5">
+                        <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-0.5">Email</label>
                             <input 
                                 id="email"
                                 type="email"  //  type tells the browser what kind of input this is.
                                 autoComplete="email"
                                 {...register("email")}
-                                className={`w-full px-3 py-2 bg-white border rounded-lg outline-none text-sm font-medium text-slate-900 placeholder:text-slate-300 ${
+                                className={`w-full px-3 h-[34px] bg-white border rounded-lg outline-none text-sm text-slate-900 placeholder:text-slate-300 placeholder:text-[11px] ${
                                     errors.email ? "border-red-500" : "border-slate-300"
                                 }`} 
                                 placeholder="example@gmail.com"
@@ -163,14 +165,14 @@ export default function LoginForm(){
                         </div>
 
                         {/* Password */}
-                        <div className="flex flex-col gap-1.5">
+                        <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-0.5">Password</label>
                             <input
                                 id="password"
                                 type="password"
                                 autoComplete="current-password"
                                 {...register("password")}
-                                className={`w-full px-3 py-2 bg-white border rounded-lg outline-none text-sm font-medium text-slate-900 placeholder:text-slate-300 ${
+                                className={`w-full px-3 h-[34px] bg-white border rounded-lg outline-none text-sm font-medium text-slate-900 placeholder:text-slate-300 placeholder:text-[11px] ${
                                     errors.password ? "border-red-500" : "border-slate-300"
                                 }`}
                                 placeholder="********"
@@ -179,13 +181,13 @@ export default function LoginForm(){
                             {errors.password?.message && (
                                 <p className="text-[10px] text-red-600 font-medium ml-1">{errors.password.message}</p>
                             )}
-                            <div className="flex justify-end">
+                            <div className="flex justify-end mt-1">
                                 <Link href="#" className="text-[10px] text-blue-600 font-bold hover:underline uppercase tracking-tighter">Forgot Password?</Link>
                             </div>
                         </div>
 
                         {/* Button */}
-                        <div className="pt-2">
+                        <div className="pt-3">
                             <button 
                                 type="submit" 
                                 disabled={isSubmitting || pending}
@@ -195,8 +197,8 @@ export default function LoginForm(){
                             </button>
                         </div>
 
-                        <div className="mt-6 text-center text-xs text-slate-500 font-medium">
-                            Don't have account? 
+                        <div className="mt-2 text-center text-xs text-slate-500 font-medium">
+                            Don't have an account? 
                             <Link href="/register" className="text-blue-600 font-bold ml-1.5 hover:underline uppercase tracking-wide">
                                 Register
                             </Link>
