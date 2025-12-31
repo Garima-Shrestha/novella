@@ -25,7 +25,7 @@ export class AuthController {
         }
     }
 
-    
+
     // For login
     async login(req: Request, res: Response) {
         try {
