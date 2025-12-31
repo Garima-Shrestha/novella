@@ -24,5 +24,26 @@ export class UserService {
         data.password = hashedPassword;
         const newUser = await userRepository.createUser(data);
     }
+
+
+    // For login
+     async loginUser(data: LoginUserDto){
+        const existingUser = await userRepository.getUserByEmail(data.email);
+        if(!existingUser){
+            throw new HttpError(404,"Email not found");
+        }
+        const isPasswordValid = await bcryptjs.compare(data.password, existingUser.password); // data.password → the plain password submitted by the use, existing.password → the hashed password stored in the database for that user
+        if (!isPasswordValid){
+            throw new HttpError(401,"Invalid credentials");
+        }
+        // generate JWT
+        const payload = {
+            id: existingUser._id,
+            email: existingUser.email,
+            role: existingUser.role
+        }; 
+        const token = jwt.sign(payload, JWT_SECRET, {expiresIn: '30d'}); 
+        return{token,existingUser};
+    }
 }
 
