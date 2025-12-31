@@ -22,7 +22,9 @@ export class UserService {
 
         const hashedPassword = await bcryptjs.hash(data.password, 10);
         data.password = hashedPassword;
+       
         const newUser = await userRepository.createUser(data);
+        return newUser;
     }
 
 
