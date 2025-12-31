@@ -1,0 +1,27 @@
+import { LoginUserDto, RegisterUserDto } from "../dtos/auth.dtos";
+import { UserService } from "../services/auth.service";
+import { Request, Response } from "express";
+import z, { success } from "zod";
+
+let userService = new UserService();
+export class AuthController {
+    // For register
+    async register(req: Request, res: Response){
+        try {
+            const parsedData = RegisterUserDto.safeParse(req.body);
+            if(!parsedData.success){
+                return res.status(400).json (
+                    { success: false, message: z.prettifyError(parsedData.error) }
+                );
+            }
+            const newUser = await userService.registerUser(parsedData.data);
+            return res.status(201).json( // 201 Created
+                { success: true, data: newUser, message: "Register success" }
+            );
+        }catch(error: Error | any) {
+            return res.status(error.statusCode || 500).json(
+                { success: false, message: error.message || "Internal Server Error"}
+            );
+        }
+    }
+} 
