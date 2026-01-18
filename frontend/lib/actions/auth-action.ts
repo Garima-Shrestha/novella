@@ -1,7 +1,7 @@
 // server side processing
 "use server"
 
-import { registerUser } from "../api/auth"
+import { registerUser, loginUser } from "../api/auth"
 
 export const handleRegister = async(formData: any) => {
     try {
@@ -20,6 +20,28 @@ export const handleRegister = async(formData: any) => {
     } catch(err: Error | any) {
         return {
             success: false, message: err.message || "Registration failed"
+        }
+    }
+}
+
+
+export const handleLogin = async(formData: any) => {
+    try {
+        const result = await loginUser(formData);
+        if(result.success) {
+            return {
+                success: true,
+                message: "Login successful",
+                data: result.data
+            };
+        } 
+        return {
+            success: false,
+            message: result.message || "Login failed"
+        }
+    } catch(err: Error | any) {
+        return {
+            success: false, message: err.message || "Login failed"
         }
     }
 }
