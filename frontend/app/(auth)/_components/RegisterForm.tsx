@@ -157,14 +157,24 @@ export default function RegisterForm() {
     const onSubmit = async (data: RegisterType) => {
         setError("");
 
+        console.log("Form Data:", data);
+
+        const payload = {
+            username: data.name,
+            email: data.email,
+            phone: data.phone,
+            countryCode: data.countryCode,
+            password: data.password,
+        };
+
+        console.log("Payload:", payload);
+
         try {
-            const res = await handleRegister(data);
+            const res = await handleRegister(payload); 
             if (!res.success) {
                 throw new Error(res.message || "Registration failed");
             }
-            // setTransition(() => {
-            //     router.push("/login");
-            // });
+
             router.push("/login");
         } catch (err: any) {
             setError(err.message || "Registration failed");
