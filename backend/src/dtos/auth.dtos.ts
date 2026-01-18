@@ -7,19 +7,20 @@ export const RegisterUserDto = UserSchema.pick(
         username: true,
         email: true,
         phone: true,
+        countryCode: true,
         password: true,
         // confirmPassword: true,
     }
-).extend (
-    {
-        confirmPassword: z.string().min(8),
-    }
-).refine(
-    (data)=> data.password === data.confirmPassword, 
-    {
-        path: ["confirmPassword"],
-        message: "Password do not match",
-    }
+// ).extend (   // [yo extend and refine is commented because error was coming in mobile] 
+//     {
+//         confirmPassword: z.string().min(8),
+//     }
+// ).refine(
+//     (data)=> data.password === data.confirmPassword, 
+//     {
+//         path: ["confirmPassword"],
+//         message: "Password do not match",
+//     }
 );
 export type RegisterUserDto = z.infer<typeof RegisterUserDto>
 

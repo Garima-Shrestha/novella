@@ -146,7 +146,7 @@ export default function RegisterForm() {
         formState: { errors, isSubmitting },
     } = useForm<RegisterType>({
         resolver: zodResolver(registerSchema),
-        values: { name: "", email: "", phone: "", password: "", confirmPassword: "" },
+        values: { name: "", email: "", countryCode: "+977", phone: "", password: "", confirmPassword: "" },
         mode: "onSubmit",
     });
 
@@ -217,7 +217,7 @@ export default function RegisterForm() {
                             )}
                         </div>
 
-                        <div className="flex flex-col gap-0.5">
+                        {/* <div className="flex flex-col gap-0.5">
                             <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-0.5">Phone Number</label>
                             <input 
                                 id="phone"
@@ -228,6 +228,37 @@ export default function RegisterForm() {
                                 placeholder="9800000000" 
                             />
                             {errors.phone?.message && ( 
+                                <p className="text-[9px] text-red-500 ml-1">{errors.phone.message}</p>
+                            )}
+                        </div> */}
+
+                        <div className="flex flex-col gap-0.5">
+                            <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-0.5">
+                                Phone Number
+                            </label>
+                            <div className="flex">
+                                {/* Country Code Selector */}
+                                <select
+                                    {...register("countryCode")}
+                                    className="h-8 px-2 border border-slate-200 rounded-l-lg bg-white text-[11px] text-slate-600 outline-none"
+                                    >
+                                    <option value="+977">🇳🇵 +977</option>
+                                    <option value="+91">🇮🇳 +91</option>
+                                    <option value="+1">🇺🇸 +1</option>
+                                    <option value="+44">🇬🇧 +44</option>
+                                    <option value="+86">🇨🇳 +86</option>
+                                </select>
+                                {/* Phone Number Input */}
+                                <input
+                                    id="phone"
+                                    type="tel"
+                                    autoComplete="tel"
+                                    {...register("phone")}
+                                    className="w-full h-8 px-3 border-t border-b border-r border-slate-200 rounded-r-lg bg-white text-sm text-slate-700 placeholder:text-slate-300 outline-none focus:border-slate-200 transition-none"
+                                    placeholder="9800000000"
+                                />
+                            </div>
+                            {errors.phone?.message && (
                                 <p className="text-[9px] text-red-500 ml-1">{errors.phone.message}</p>
                             )}
                         </div>

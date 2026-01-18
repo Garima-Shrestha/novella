@@ -4,7 +4,8 @@ import { UserType } from "../types/auth.type";
 const UserSchema: Schema = new Schema ({
     username: { type: String, required: true, minLength:2 },
     email: { type: String, required: true, unique: true },
-    phone: { type: String, required: true, unique:true, match: [/^\+?\d{10,15}$/, "Invalid phone number"]},
+    countryCode: { type: String, required: true, match: [/^\+\d{1,3}$/, "Invalid country code"] },
+    phone: { type: String, required: true, unique:true, match: [/^\d{8,15}$/, "Invalid phone number"]},
     password: { type: String, required: true, minLength:8 },
     role: { type: String, enum: [ "admin", "user" ], default: "user"},
 }, {
