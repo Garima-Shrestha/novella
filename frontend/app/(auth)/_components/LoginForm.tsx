@@ -87,10 +87,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from "next/link";
-import { startTransition, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { loginSchema, LoginType } from "../schema";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { handleLogin } from "@/lib/actions/auth-action";
 
 export default function LoginForm(){
     const router = useRouter();
@@ -108,8 +109,26 @@ export default function LoginForm(){
 
     const [pending, setTransition] = useTransition()
 
-    const onSubmit = async (data: LoginType) => { 
-        router.push("/homepage");
+    // const onSubmit = async (data: LoginType) => { 
+    //     router.push("/homepage");
+    // }
+
+    const [error, setError] = useState("");
+    const onSubmit = async (data: LoginType) => {
+        // call action here
+        setError("");
+        try{
+            const res = await handleLogin(data);
+            if(!res.success){
+                throw new Error(res.message || "Login failed");
+            }
+            // handle redirect (optional)
+            setTransition(() => {
+                router.push("/homepage");
+            });
+        }catch(err:Error | any){
+            setError(err.message || "Login failed");
+        }
     }
 
     return(

@@ -1,4 +1,4 @@
-import z, { email } from 'zod';
+import z from 'zod';
 
 export const loginSchema = z.object({
     email: z.email({message: "Enter a vaild email"}),
@@ -10,7 +10,8 @@ export const registerSchema = z.object({
     name: z.string().min(2, {message: "Enter your name"}),
     email: z.email({message: "Enter a valid email"}),
     countryCode: z.string().min(1),  
-    phone: z.string().regex(/^\+\d{8,15}$/, { message: "Enter a valid phone number" }),
+    // phone: z.string().regex(/^\+\d{8,15}$/, { message: "Enter a valid phone number" })
+    phone: z.string().regex(/^\d{8,15}$/, { message: "Enter a valid phone number" }),
     password: z.string().min(8, {message: "Minimum 8 characters"}),
     confirmPassword: z.string().min(8, {message: "Minimum 8 characters"}),
 }).refine((v) => v.password === v.confirmPassword, {
