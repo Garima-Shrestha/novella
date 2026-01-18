@@ -147,7 +147,7 @@ export default function RegisterForm() {
         formState: { errors, isSubmitting },
     } = useForm<RegisterType>({
         resolver: zodResolver(registerSchema),
-        // values: { name: "", email: "", countryCode: "+977", phone: "", password: "", confirmPassword: "" },
+        values: { name: "", email: "", countryCode: "+977", phone: "", password: "", confirmPassword: "" },
         mode: "onSubmit",
     });
 
@@ -322,11 +322,9 @@ export default function RegisterForm() {
                             <button 
                                 type="submit"
                                 disabled={isSubmitting || pending}  
-                                // disabled={isSubmitting}  
                                 className="w-full h-10 bg-[#001F2B] hover:bg-black text-white rounded-lg font-bold text-[10px] uppercase tracking-[0.2em] transition-all active:scale-[0.98] disabled:opacity-50"
                             >
                                 {isSubmitting || pending ? "Registering..." : "Register"}
-                                {/* {isSubmitting ? "Registering..." : "Register"} */}
                             </button>
                         </div>
 
