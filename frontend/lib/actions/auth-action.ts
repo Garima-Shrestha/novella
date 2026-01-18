@@ -2,6 +2,7 @@
 "use server"
 
 import { registerUser, loginUser } from "../api/auth"
+import { setUserData, setAuthToken } from '../cookie'
 
 export const handleRegister = async(formData: any) => {
     try {
@@ -29,6 +30,9 @@ export const handleLogin = async(formData: any) => {
     try {
         const result = await loginUser(formData);
         if(result.success) {
+            await setAuthToken(result.token)
+            await setUserData(result.data)
+              
             return {
                 success: true,
                 message: "Login successful",
