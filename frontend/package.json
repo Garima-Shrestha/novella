@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "nodemon --exec ts-node src/index.ts",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "axios": "^1.13.2",
     "express": "^5.2.1",
     "next": "16.1.1",
     "react": "19.2.3",
