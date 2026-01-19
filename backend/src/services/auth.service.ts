@@ -4,7 +4,6 @@ import bcryptjs from "bcryptjs";
 import { HttpError } from "../errors/http-error";
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from "../config";
-import { email } from "zod";
 
 let userRepository = new UserRepository;
 
@@ -18,6 +17,10 @@ export class UserService {
         const checkUsername = await userRepository.getUserByUsername(data.username);
         if(checkUsername){
             throw new HttpError(409, "Username already in use");
+        }
+        const checkPhone = await userRepository.getUserByPhone(data.phone);
+        if (checkPhone) {
+            throw new HttpError(409, "Phone number already in use");
         }
 
         const hashedPassword = await bcryptjs.hash(data.password, 10);

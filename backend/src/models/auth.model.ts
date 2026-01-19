@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from "mongoose";
 import { UserType } from "../types/auth.type";
 
 const UserSchema: Schema = new Schema ({
-    username: { type: String, required: true, minLength:2 },
+    username: { type: String, required: true, unique: true, minLength:2 },
     email: { type: String, required: true, unique: true },
     countryCode: { type: String, required: true, match: [/^\+\d{1,3}$/, "Invalid country code"] },
     phone: { type: String, required: true, unique:true, match: [/^\d{8,15}$/, "Invalid phone number"]},

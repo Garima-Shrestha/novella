@@ -1,7 +1,7 @@
 import { LoginUserDto, RegisterUserDto } from "../dtos/auth.dtos";
 import { UserService } from "../services/auth.service";
 import { Request, Response } from "express";
-import z, { success } from "zod";
+import z from "zod";
 
 let userService = new UserService();
 export class AuthController {
