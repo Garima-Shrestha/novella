@@ -155,9 +155,7 @@ export default function RegisterForm() {
 
     const [error, setError] = useState("");
     const onSubmit = async (data: RegisterType) => {
-        setError("");
-
-        console.log("Form Data:", data);
+        setError(""); // clear previous error
 
         const payload = {
             username: data.name,
@@ -167,12 +165,31 @@ export default function RegisterForm() {
             password: data.password,
         };
 
-        console.log("Payload:", payload);
-
         try {
-            const res = await handleRegister(payload); 
+            // const res = await handleRegister(payload); 
+            // if (!res.success) {
+            //     throw new Error(res.message || "Registration failed");
+            // }
+
+            const res = await handleRegister(payload) as {
+                success: boolean;
+                message: string;
+                data?: any;
+                field?: "email" | "username" | "phone";
+            };
+
             if (!res.success) {
-                throw new Error(res.message || "Registration failed");
+                // If server tells which field is duplicate, show below
+                if (res.field === "email") {
+                    setError("This email is already registered");
+                } else if (res.field === "username") {
+                    setError("This username is already taken");
+                } else if (res.field === "phone") {
+                    setError("This phone number is already registered");
+                } else {
+                    setError(res.message || "Registration failed");
+                }
+                return; 
             }
 
             router.push("/login");
@@ -317,6 +334,11 @@ export default function RegisterForm() {
                                 <p className="text-[9px] text-red-500 ml-1">{errors.confirmPassword.message}</p>
                             )}
                         </div>
+
+                        {/* Show general error from backend */}
+                        {error && (
+                            <p className="text-[9px] text-red-500 ml-1 mb-2">{error}</p>
+                        )}
 
                         <div className="pt-2">
                             <button 
