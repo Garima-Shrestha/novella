@@ -166,32 +166,11 @@ export default function RegisterForm() {
         };
 
         try {
-            // const res = await handleRegister(payload); 
-            // if (!res.success) {
-            //     throw new Error(res.message || "Registration failed");
-            // }
-
-            const res = await handleRegister(payload) as {
-                success: boolean;
-                message: string;
-                data?: any;
-                field?: "email" | "username" | "phone";
-            };
-
+            const res = await handleRegister(payload); 
             if (!res.success) {
-                // If server tells which field is duplicate, show below
-                if (res.field === "email") {
-                    setError("This email is already registered");
-                } else if (res.field === "username") {
-                    setError("This username is already taken");
-                } else if (res.field === "phone") {
-                    setError("This phone number is already registered");
-                } else {
-                    setError(res.message || "Registration failed");
-                }
-                return; 
+                throw new Error(res.message || "Registration failed");
             }
-
+            
             router.push("/login");
         } catch (err: any) {
             setError(err.message || "Registration failed");

@@ -109,9 +109,6 @@ export default function LoginForm(){
 
     const [pending, setTransition] = useTransition()
 
-    // const onSubmit = async (data: LoginType) => { 
-    //     router.push("/homepage");
-    // }
 
     const [error, setError] = useState("");
     const onSubmit = async (data: LoginType) => {
@@ -204,6 +201,9 @@ export default function LoginForm(){
                                 <Link href="#" className="text-[10px] text-blue-600 font-bold hover:underline uppercase tracking-tighter">Forgot Password?</Link>
                             </div>
                         </div>
+
+                        {/* Show error message */}
+                        {error && <p className="text-red-600 text-[10px] font-medium mb-2">{error}</p>}
 
                         {/* Button */}
                         <div className="pt-3">

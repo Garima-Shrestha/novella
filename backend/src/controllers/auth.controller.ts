@@ -19,17 +19,6 @@ export class AuthController {
                 { success: true, data: newUser, message: "Register success" }
             );
         }catch(error: Error | any) {
-
-            // Handle duplicate key error
-            if (error.code === 11000) {
-                const field = Object.keys(error.keyValue)[0]; // gets the duplicate field  [e.g., "email" or "username"]
-                return res.status(400).json({
-                    success: false,
-                    message: `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`,
-                    field // send field so frontend can show under correct input
-                });
-            }
-
             return res.status(error.statusCode || 500).json(
                 { success: false, message: error.message || "Internal Server Error"}
             );
