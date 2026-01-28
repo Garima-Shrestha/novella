@@ -26,8 +26,8 @@ export type RegisterUserDto = z.infer<typeof RegisterUserDto>
 
 
 // for login
-export const UpdateUserDto = RegisterUserDto.partial();
-export type UpdateUserDto = z.infer<typeof UpdateUserDto>;
+// export const UpdateUserDto = RegisterUserDto.partial();
+// export type UpdateUserDto = z.infer<typeof UpdateUserDto>;
 
 export const LoginUserDto = z.object({
     email: z.string().email(),
@@ -35,3 +35,7 @@ export const LoginUserDto = z.object({
 });
 
 export type LoginUserDto = z.infer<typeof LoginUserDto>;
+
+
+export const UpdateUserDto = UserSchema.partial();
+export type UpdateUserDto = z.infer<typeof UpdateUserDto>;

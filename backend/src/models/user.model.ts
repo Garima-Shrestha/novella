@@ -8,6 +8,7 @@ const UserSchema: Schema = new Schema ({
     phone: { type: String, required: true, unique:true, match: [/^\d{8,15}$/, "Invalid phone number"]},
     password: { type: String, required: true, minLength:8 },
     role: { type: String, enum: [ "admin", "user" ], default: "user"},
+    imageUrl: { type: String, required: false }
 }, {
     timestamps: true, 
 });

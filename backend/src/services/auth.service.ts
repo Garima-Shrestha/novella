@@ -1,4 +1,4 @@
-import { RegisterUserDto, LoginUserDto } from "../dtos/user.dtos";
+import { RegisterUserDto, LoginUserDto, UpdateUserDto } from "../dtos/user.dtos";
 import { UserRepository } from "../repositories/user.repository";
 import bcryptjs from "bcryptjs";
 import { HttpError } from "../errors/http-error";
@@ -49,6 +49,49 @@ export class UserService {
         }; 
         const token = jwt.sign(payload, JWT_SECRET, {expiresIn: '30d'}); 
         return{token,existingUser};
+    }
+
+
+    
+    // Get a user by ID
+    async getUserById(userId: string) {
+        const user = await userRepository.getUserById(userId);
+        if (!user) {
+            throw new HttpError(404, "User not found");
+        }
+        return user;
+    }
+
+    // Update a user by ID
+    async updateUser(userId: string, data: UpdateUserDto) {
+        const user = await userRepository.getUserById(userId);
+        if (!user) {
+            throw new HttpError(404, "User not found");
+        }
+        if(user.email !== data.email){
+            const emailExists = await userRepository.getUserByEmail(data.email!);
+            if(emailExists){
+                throw new HttpError(403, "Email already in use");
+            }
+        }
+        if(user.username !== data.username){
+            const usernameExists = await userRepository.getUserByUsername(data.username!);
+            if(usernameExists){
+                throw new HttpError(403, "Username already in use");
+            }
+        }
+        if(user.phone !== data.phone){
+            const phoneExists = await userRepository.getUserByPhone(data.phone!);
+            if(phoneExists){
+                throw new HttpError(403, "Phone number already in use");
+            }
+        }
+        if(data.password){
+            const hashedPassword = await bcryptjs.hash(data.password, 10);
+            data.password = hashedPassword;
+        }
+        const updatedUser = await userRepository.updateOneUser(userId, data);
+        return updatedUser;
     }
 }
 

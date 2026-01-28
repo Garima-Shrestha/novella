@@ -7,6 +7,7 @@ export const UserSchema = z.object ({
     phone: z.string().regex(/^\d{8,15}$/),
     password: z.string().min(8),
     role: z.enum(['admin', 'user']).default('user'),
+    imageUrl: z.string().optional() 
 });
 
 export type UserType = z. infer<typeof UserSchema>;
