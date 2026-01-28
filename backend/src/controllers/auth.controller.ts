@@ -1,4 +1,4 @@
-import { LoginUserDto, RegisterUserDto } from "../dtos/auth.dtos";
+import { LoginUserDto, RegisterUserDto } from "../dtos/user.dtos";
 import { UserService } from "../services/auth.service";
 import { Request, Response } from "express";
 import z from "zod";
@@ -45,4 +45,6 @@ export class AuthController {
             );
         }
     }
+
+
 } 

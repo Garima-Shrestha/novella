@@ -1,5 +1,5 @@
-import { RegisterUserDto, LoginUserDto } from "../dtos/auth.dtos";
-import { UserRepository } from "../repositories/auth.repository";
+import { RegisterUserDto, LoginUserDto } from "../dtos/user.dtos";
+import { UserRepository } from "../repositories/user.repository";
 import bcryptjs from "bcryptjs";
 import { HttpError } from "../errors/http-error";
 import jwt from 'jsonwebtoken';
