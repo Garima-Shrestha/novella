@@ -5,6 +5,7 @@ import { connectDatabase } from "./database/mongodb";
 import dotenv from "dotenv";
 
 import authRoutes from './routes/auth.route';
+import adminRoutes from './routes/admin.route';
 
 dotenv.config();
 console.log(process.env.PORT);
@@ -14,6 +15,7 @@ const app: Application = express();
 app.use(bodyParser.json());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/admin/users', adminRoutes);
 
 async function start() {
     await connectDatabase();
