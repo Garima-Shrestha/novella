@@ -263,16 +263,17 @@
 //   );
 // }
 
-
-import Header from "./_component/Header"
+import Header from "./_component/Header";
 import Footer from "./_component/Footer";
 
-export default function Layout({children}: {children: React.ReactNode}) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <section>
-      <Header/>
-      {children}
-      <Footer/>
-    </section>
+    <div className="min-h-screen flex flex-col bg-white text-slate-900">
+      <Header />
+      <main className="flex-grow">
+        {children}
+      </main>
+      <Footer />
+    </div>
   );
 }
