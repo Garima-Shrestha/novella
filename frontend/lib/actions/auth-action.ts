@@ -1,8 +1,10 @@
 // server side processing
 "use server"
 
-import { registerUser, loginUser } from "../api/auth"
-import { setUserData, setAuthToken } from '../cookie'
+import { redirect } from "next/navigation";
+import { registerUser, loginUser, updateUserProfile, fetchWhoAmI } from "../api/auth"
+import { setUserData, setAuthToken, clearAuthCookies } from '../cookie'
+import { revalidatePath } from 'next/cache';
 
 export const handleRegister = async(formData: any) => {
     try {
@@ -47,5 +49,51 @@ export const handleLogin = async(formData: any) => {
         return {
             success: false, message: err.message || "Login failed"
         }
+    }
+}
+
+export const handleLogout = async () => {
+    await clearAuthCookies();
+    return redirect('/login');
+}
+
+
+// fetch the current logged-in user[particular set of user can only fetch]
+export const handleWhoAmI = async() => {
+    try {
+        const result = await fetchWhoAmI();
+        if(result.success) {
+              
+            return {
+                success: true,
+                data: result.data
+            };
+        } 
+        return {
+            success: false,
+            message: result.message || "Whoami failed" 
+        }
+    } catch(err: Error | any) {
+        return {
+            success: false, message: err.message || "Fetch whoami failed" 
+        }
+    }
+}
+
+export async function handleUpdateProfile(profileData: FormData) {
+    try {
+        const result = await updateUserProfile(profileData);
+        if (result.success) {
+            await setUserData(result.data); // update cookie 
+            revalidatePath('/user/profile'); // revalidate profile page/ refresh new data
+            return {
+                success: true,
+                message: 'Profile updated successfully',
+                data: result.data
+            };
+        }
+        return { success: false, message: result.message || 'Failed to update profile' };
+    } catch (error: Error | any) {
+        return { success: false, message: error.message };
     }
 }

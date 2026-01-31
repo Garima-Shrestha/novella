@@ -33,3 +33,41 @@ export const loginUser = async (loginData: any) => {
         )
     }
 }
+
+// fetch the current logged-in user[particular set of user can only fetch]
+export const fetchWhoAmI = async () => {
+    try {
+        const response = await axios.get (
+            API.AUTH.WHOAMI, 
+        );
+        return response.data; 
+    } catch (err: Error | any) {
+        throw new Error(
+            err.response?.data?.message 
+            || err.message 
+            || "Fetch whoami failed" 
+        )
+    }
+}
+
+export const updateUserProfile = async (updateData: any) => {
+    try{
+        const response = await axios.put(
+            API.AUTH.UPDATEPROFILE, 
+            updateData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data', 
+                }
+            }
+        );
+        return response.data;
+    }catch(err: Error | any){
+        throw new Error
+            (
+                err.response?.data?.message  
+                || err.message 
+                || "Update profile failed" 
+            );
+    }
+}
