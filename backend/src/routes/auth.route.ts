@@ -9,11 +9,12 @@ const router = Router();
 router.post("/register", authController.register);
 router.post("/login", authController.login);
 
+router.get("/whoami", authorizedMiddleware, authController.getProfile);
+
 router.put(
     "/update-profile",
     authorizedMiddleware,
     uploads.single("image"), // image
     authController.updateProfile
 )
-
 export default router;
