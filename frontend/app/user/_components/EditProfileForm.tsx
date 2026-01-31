@@ -176,29 +176,44 @@ export default function EditProfileForm({ user }: { user: any }) {
                     {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
                 </div>
 
-                {/* Country Code */}
-                <div>
-                    <label className="block text-sm font-medium mb-1" htmlFor="countryCode">Country Code</label>
-                    <input
-                        id="countryCode"
-                        type="text"
-                        {...register("countryCode")}
-                        className="w-full border border-gray-300 rounded px-3 py-2"
-                    />
-                    {errors.countryCode && <p className="text-sm text-red-600">{errors.countryCode.message}</p>}
+                {/* Country Code & Phone */}
+                <div className="flex flex-col gap-0.5">
+                    <label className="text-sm font-medium mb-1" htmlFor="phone">
+                        Phone
+                    </label>
+                    <div className="flex">
+                        {/* Country Code Selector */}
+                        <Controller
+                            name="countryCode"
+                            control={control}
+                            render={({ field }) => (
+                                <select
+                                    {...field}
+                                    className="h-8 px-2 border border-gray-300 rounded-l-md bg-white text-sm text-gray-700 outline-none"
+                                >
+                                    <option value="+977">🇳🇵 +977</option>
+                                    <option value="+91">🇮🇳 +91</option>
+                                    <option value="+1">🇺🇸 +1</option>
+                                    <option value="+44">🇬🇧 +44</option>
+                                    <option value="+86">🇨🇳 +86</option>
+                                </select>
+                            )}
+                        />
+
+                        {/* Phone Input */}
+                        <input
+                            id="phone"
+                            type="text"
+                            {...register("phone")}
+                            className="flex-1 h-8 px-3 border-t border-b border-r border-gray-300 rounded-r-md outline-none"
+                            placeholder="9800000000"
+                        />
+                    </div>
+                    {errors.phone && (
+                        <p className="text-sm text-red-600">{errors.phone.message}</p>
+                    )}
                 </div>
 
-                {/* Phone */}
-                <div>
-                    <label className="block text-sm font-medium mb-1" htmlFor="phone">Phone</label>
-                    <input
-                        id="phone"
-                        type="text"
-                        {...register("phone")}
-                        className="w-full border border-gray-300 rounded px-3 py-2"
-                    />
-                    {errors.phone && <p className="text-sm text-red-600">{errors.phone.message}</p>}
-                </div>
 
                 {/* Submit Button */}
                 <button
