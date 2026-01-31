@@ -92,9 +92,12 @@ import { loginSchema, LoginType } from "../schema";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { handleLogin } from "@/lib/actions/auth-action";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginForm(){
     const router = useRouter();
+    const {checkAuth} = useAuth();
+    
     const {
         register,
         handleSubmit,
@@ -120,6 +123,7 @@ export default function LoginForm(){
                 throw new Error(res.message || "Login failed");
             }
             // handle redirect (optional)
+            await checkAuth();
             setTransition(() => {
                 router.push("/homepage");
             });
