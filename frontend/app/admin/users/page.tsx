@@ -1,25 +1,17 @@
-// import Link from "next/link";
-
-// export default function Page() {
-//     return (
-//         <div>
-//             <Link className="text-blue-500 border border-blue-500 p-2 rounded inline-block"
-//              href="/admin/users/create">Create User</Link>
-//         </div>
-//     );
-// }
-
-
 "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import axios from "axios";
+import {
+  fetchUsers as fetchUsersAPI,
+  deleteUser as deleteUserAPI,
+} from "@/lib/api/admin/user";
 
 interface User {
   _id: string;
   username: string;
   email: string;
+  countryCode: string;
   phone: string;
   role: string;
 }
@@ -29,18 +21,17 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Fetch users from backend
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/api/admin/users");
-      if (response.data.success) {
-        setUsers(response.data.data);
+      const response = await fetchUsersAPI();
+      if (response.success) {
+        setUsers(response.data);
       } else {
         setError("Failed to fetch users");
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || "Failed to fetch users");
+      setError(err.message || "Failed to fetch users");
     } finally {
       setLoading(false);
     }
@@ -53,11 +44,17 @@ export default function Page() {
   const deleteUser = async (id: string) => {
     if (!confirm("Are you sure you want to delete this user?")) return;
     try {
-      await axios.delete(`/api/admin/users/${id}`);
-      setUsers(prev => prev.filter(u => u._id !== id));
+      await deleteUserAPI(id);
+      setUsers((prev) => prev.filter((u) => u._id !== id));
     } catch (err: any) {
-      alert(err.response?.data?.message || err.message || "Delete failed");
+      alert(err.message || "Delete failed");
     }
+  };
+
+  const handleCountryCodeChange = (id: string, newCode: string) => {
+    setUsers((prev) =>
+      prev.map((u) => (u._id === id ? { ...u, countryCode: newCode } : u))
+    );
   };
 
   return (
@@ -84,16 +81,35 @@ export default function Page() {
             <tr className="bg-gray-100">
               <th className="border p-2 text-left">Username</th>
               <th className="border p-2 text-left">Email</th>
+              <th className="border p-2 text-left">Country Code</th>
               <th className="border p-2 text-left">Phone</th>
               <th className="border p-2 text-left">Role</th>
               <th className="border p-2 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {users.map(user => (
+            {users.map((user) => (
               <tr key={user._id} className="hover:bg-gray-50">
                 <td className="border p-2">{user.username}</td>
                 <td className="border p-2">{user.email}</td>
+
+                {/* Separate Country Code column */}
+                <td className="border p-2">
+                  <select
+                    value={user.countryCode}
+                    onChange={(e) =>
+                      handleCountryCodeChange(user._id, e.target.value)
+                    }
+                    className="border p-1 rounded text-sm w-full"
+                  >
+                    <option value="+977">🇳🇵 +977</option>
+                    <option value="+91">🇮🇳 +91</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+44">🇬🇧 +44</option>
+                    <option value="+86">🇨🇳 +86</option>
+                  </select>
+                </td>
+
                 <td className="border p-2">{user.phone}</td>
                 <td className="border p-2">{user.role}</td>
                 <td className="border p-2 space-x-2">
@@ -114,7 +130,7 @@ export default function Page() {
             ))}
             {users.length === 0 && (
               <tr>
-                <td colSpan={5} className="text-center p-4">
+                <td colSpan={6} className="text-center p-4">
                   No users found.
                 </td>
               </tr>
