@@ -52,7 +52,6 @@ export default function EditUserPage() {
         email: u.email,
         phone: u.phone,
         countryCode: u.countryCode,
-        role: u.role,
         password: "", // ignore
         image: undefined,  // image will be handled separately
       });
@@ -61,7 +60,6 @@ export default function EditUserPage() {
       setValue("email", u.email);
       setValue("phone", u.phone);
       setValue("countryCode", u.countryCode);
-      setValue("role", u.role);
 
       setLoading(false);
     };
@@ -81,8 +79,6 @@ export default function EditUserPage() {
 
   // Submit
   const onSubmit = async (data: UserEditData) => {
-    // if (!id) return;
-
     if (!id || !oldUser) return;
 
   const isChanged =
@@ -90,7 +86,6 @@ export default function EditUserPage() {
     data.email !== oldUser.email ||
     data.phone !== oldUser.phone ||
     data.countryCode !== oldUser.countryCode ||
-    data.role !== oldUser.role ||
     (data.password?.trim() || "") !== "" ||
     !!data.image; // image changed
 
@@ -104,7 +99,6 @@ export default function EditUserPage() {
     if (data.email) formData.append("email", data.email);
     if (data.phone) formData.append("phone", data.phone);
     if (data.countryCode) formData.append("countryCode", data.countryCode);
-    if (data.role) formData.append("role", data.role);
 
     // Only append password if typed
     if (data.password?.trim()) {
@@ -157,19 +151,19 @@ export default function EditUserPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div>
-          <p className="text-sm mb-1">Profile Image</p>
-          {(newImagePreview || oldImage) ? (
-            <img
-              src={newImagePreview || oldImage!}
-              alt="Profile preview"
-              className="w-24 h-24 object-cover border"
-            />
-          ) : (
-            <div className="w-24 h-24 border flex items-center justify-center text-xs text-gray-400">
-              No image
-            </div>
-          )}
-        </div>
+        <p className="text-sm mb-1">Profile Image</p>
+        {newImagePreview || oldImage ? (
+          <img
+            src={newImagePreview || oldImage!}
+            alt="Profile preview"
+            className="w-24 h-24 object-cover border rounded-full"
+          />
+        ) : (
+          <div className="w-24 h-24 border rounded-full flex items-center justify-center bg-gray-200 text-gray-700 text-xl font-bold">
+            {oldUser?.username ? oldUser.username.charAt(0).toUpperCase() : "?"}
+          </div>
+        )}
+      </div>
 
         <input
           type="file"
@@ -190,17 +184,14 @@ export default function EditUserPage() {
 
         <div className="flex gap-2">
           <select {...register("countryCode")} className="border p-2">
-            <option value="+977">+977</option>
-            <option value="+91">+91</option>
-            <option value="+1">+1</option>
+            <option value="+977">🇳🇵 +977</option>
+            <option value="+91">🇮🇳 +91</option>
+            <option value="+1">🇺🇸 +1</option>
+            <option value="+44">🇬🇧 +44</option>
+            <option value="+86">🇨🇳 +86</option>
           </select>
           <input {...register("phone")} className="border p-2 flex-1" />
         </div>
-
-        <select {...register("role")} className="border p-2">
-          <option value="user">User</option>
-          <option value="admin">Admin</option>
-        </select>
 
         <input
           type="password"

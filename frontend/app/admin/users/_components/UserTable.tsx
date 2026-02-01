@@ -6,6 +6,8 @@ import {
   fetchUsers as fetchUsersAPI,
   deleteUser as deleteUserAPI,
 } from "@/lib/api/admin/user";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface User {
   _id: string;
@@ -43,12 +45,13 @@ export default function UserTable() {
   }, []);
 
   const deleteUser = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this user?")) return;
+    // if (!confirm("Are you sure you want to delete this user?")) return;
     try {
       await deleteUserAPI(id);
       setUsers((prev) => prev.filter((u) => u._id !== id));
+      toast.success("User deleted successfully"); 
     } catch (err: any) {
-      alert(err.message || "Delete failed");
+      toast.error(err.message || "Delete failed");
     }
   };
 
@@ -61,6 +64,7 @@ export default function UserTable() {
   const BASE_URL = "http://localhost:5050";
   return (
     <div className="p-6">
+      <ToastContainer />
       {/* Action Buttons */}
       <div className="mb-4 space-x-2">
         <Link
@@ -102,7 +106,7 @@ export default function UserTable() {
                     />
                   ) : (
                     <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-xs">
-                      N/A
+                      {user.username ? user.username.charAt(0).toUpperCase() : "?"}
                     </div>
                   )}
                 </td>
