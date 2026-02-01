@@ -15,6 +15,10 @@ export class AdminUserController {
                     { success: false, message: z.prettifyError(parsedData.error) }
                 );
             }
+            if (req.file) {
+                parsedData.data.imageUrl = `/uploads/${req.file.filename}`;
+            }
+            
             const newUser = await adminUserService.createUser(parsedData.data);
             return res.status(201).json( // 201 Created
                 { success: true, data: newUser, message: "Register success" }
@@ -59,6 +63,9 @@ export class AdminUserController {
     async updateOneUser(req: Request, res: Response) {
         try {
             const userId = req.params.id;
+            if (req.file) {
+                req.body.imageUrl = `/uploads/${req.file.filename}`;
+            }
             const updatedUser = await adminUserService.updateOneUser(userId, req.body);
             return res.status(200).json({
                 success: true,

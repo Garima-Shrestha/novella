@@ -10,6 +10,7 @@ export const RegisterUserDto = UserSchema.pick(
         countryCode: true,
         password: true,
         // confirmPassword: true,
+        imageUrl: true,
     }
 // ).extend (   // [yo extend and refine is commented because error was coming in mobile] 
 //     {
