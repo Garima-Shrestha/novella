@@ -18,11 +18,13 @@ export class UserRepository implements IUserRepository {
         return await user.save();
     }
     async getUserByUsername(username: string): Promise<IUser | null> {
-        const user = await UserModel.findOne({ username });
+        // const user = await UserModel.findOne({ username });
+        const user = await UserModel.findOne({ username: { $regex: `^${username}$`, $options: "i" } });
         return user;
     }
     async getUserByEmail(email: string): Promise<IUser | null> {
-        const user = await UserModel.findOne({ email });
+        // const user = await UserModel.findOne({ email });
+        const user = await UserModel.findOne({ email: { $regex: `^${email}$`, $options: "i" } })
         return user;
     }
     async getUserByPhone(phone: string): Promise<IUser | null> {
