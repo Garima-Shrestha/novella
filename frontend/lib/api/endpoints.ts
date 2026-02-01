@@ -9,7 +9,7 @@ export const API = {
     ADMIN:{
         USER:{
             CREATE: '/api/admin/users/',
-            GET_ALL: '/api/admin/users', 
+            GET_ALL: '/api/admin/users/', 
             GET_ONE: (id: string) => `/api/admin/users/${id}`,
             UPDATE: (id: string) => `/api/admin/users/${id}`,
             DELETE: (id: string) => `/api/admin/users/${id}`,

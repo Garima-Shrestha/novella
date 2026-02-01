@@ -13,7 +13,7 @@ interface User {
   email: string;
   countryCode: string;
   phone: string;
-  role: string;
+  imageUrl?: string;
 }
 
 export default function UserTable() {
@@ -26,6 +26,7 @@ export default function UserTable() {
       setLoading(true);
       const response = await fetchUsersAPI();
       if (response.success) {
+        console.log("Fetched users:", response.data);
         setUsers(response.data);
       } else {
         setError("Failed to fetch users");
@@ -57,8 +58,18 @@ export default function UserTable() {
     );
   };
 
+  const BASE_URL = "http://localhost:5050";
   return (
     <div className="p-6">
+      {/* Action Buttons */}
+      <div className="mb-4 space-x-2">
+        <Link
+          href="/admin/users/create"
+          className="text-sm text-white bg-green-500 px-3 py-1 rounded"
+        >
+          + Create
+        </Link>
+      </div>
 
       {/* Error */}
       {error && <div className="text-red-500 mb-4">{error}</div>}
@@ -70,17 +81,31 @@ export default function UserTable() {
         <table className="w-full border-collapse border border-gray-300">
           <thead>
             <tr className="bg-gray-100">
+              <th className="border p-2 text-left">Image</th>
               <th className="border p-2 text-left">Username</th>
               <th className="border p-2 text-left">Email</th>
               <th className="border p-2 text-left">Country Code</th>
               <th className="border p-2 text-left">Phone</th>
-              <th className="border p-2 text-left">Role</th>
               <th className="border p-2 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
               <tr key={user._id} className="hover:bg-gray-50">
+                <td className="border p-2">
+                  {user.imageUrl ? (
+                    <img
+                      // src={user.imageUrl}
+                      src={user.imageUrl ? `${BASE_URL}${user.imageUrl}` : "/default-avatar.png"}
+                      alt={user.username}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-xs">
+                      N/A
+                    </div>
+                  )}
+                </td>
                 <td className="border p-2">{user.username}</td>
                 <td className="border p-2">{user.email}</td>
 
@@ -102,14 +127,13 @@ export default function UserTable() {
                 </td>
 
                 <td className="border p-2">{user.phone}</td>
-                <td className="border p-2">{user.role}</td>
                 <td className="border p-2 space-x-2">
-                   <Link
+                   {/* <Link
                     href="/admin/users/create"
                     className="text-sm text-white bg-green-500 px-2 py-1 rounded"
                   >
                     + Create
-                  </Link>
+                  </Link> */}
                   <Link
                     href={`/admin/users/${user._id}/edit`}
                     className="text-sm text-white bg-blue-500 px-2 py-1 rounded"

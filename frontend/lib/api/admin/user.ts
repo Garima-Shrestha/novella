@@ -23,7 +23,7 @@ export const createUser = async (userData: any) => {
 export const fetchUsers = async () => {
   try {
     const response = await axios.get(API.ADMIN.USER.GET_ALL);
-    return response.data; // { success: true, data: [...] }
+    return response.data;
   } catch (err: any) {
     throw new Error(err.response?.data?.message || err.message || "Fetch users failed");
   }
