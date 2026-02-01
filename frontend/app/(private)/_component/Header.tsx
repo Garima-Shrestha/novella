@@ -40,7 +40,7 @@ export default function Header() {
         router.replace("/login"); 
     };
 
-
+    const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5050/";
 
     return (
         <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
@@ -83,8 +83,8 @@ export default function Header() {
                 aria-haspopup="true"
                 aria-expanded={isDropdownOpen}
             >
-                {user?.imageUrl ? (
-                <img src={user.imageUrl} alt="Profile" className="w-full h-full object-cover" />
+                {user?.imageUrl ?  (
+                <img src={`${BASE_URL.replace(/\/$/, "")}${user.imageUrl}`} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
