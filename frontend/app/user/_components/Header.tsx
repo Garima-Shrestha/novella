@@ -107,9 +107,6 @@ export default function Header() {
                 <Link href="/user/editprofile" className="block px-4 py-2 text-sm font-semibold hover:bg-gray-50">
                     Edit Profile
                 </Link>
-                <Link href="/settings" className="block px-4 py-2 text-sm font-semibold hover:bg-gray-50">
-                    Activity Overview
-                </Link>
                 <Link href="/rentals" className="block px-4 py-2 text-sm font-semibold hover:bg-gray-50">
                     Account Details
                 </Link>
