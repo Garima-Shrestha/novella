@@ -10,44 +10,38 @@ const ADMIN_LINKS = [
 
 export default function Sidebar() {
     const pathname = usePathname();
-
     const isActive = (href: string) => href === "/admin" ? pathname === href : pathname?.startsWith(href);
 
     return (
-        <>
-            {/* Sidebar */}
-            <aside className={`
-                fixed md:static 
-                top-0 left-0 
-                h-screen w-64 
-                bg-white dark:bg-gray-900 
-                border-r border-gray-200 dark:border-gray-800 
-                z-40 overflow-y-auto`}
-            >
-                <div className="p-4 border-b border-gray-200 dark:border-gray-800">
-                    <Link href="/admin" className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded bg-gray-900 dark:bg-white text-white dark:text-gray-900 flex items-center justify-center font-bold">A</div>
-                        <span className="font-semibold">Admin Panel</span>
-                    </Link>
-                </div>
+        <aside className="fixed top-0 left-0 h-screen w-56 bg-[#001F2B] border-r border-white/10 z-40 overflow-y-auto">
+            <div className="h-16 flex items-center px-4 border-b border-white/10">
+                <Link href="/admin" className="flex items-center gap-3">
+                    <img 
+                        src="/images/logo.png" 
+                        alt="Logo" 
+                        className="h-14 w-auto object-contain mix-blend-screen brightness-150 contrast-125"
+                    />
+                    <span className="text-base font-bold text-white tracking-tight">
+                        Admin
+                    </span>
+                </Link>
+            </div>
 
-                <nav className="p-2 space-y-1">
-                    {
-                        ADMIN_LINKS.map(link => (
-                            <Link
-                                key={link.href}
-                                href={link.href}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive(link.href)
-                                    ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
-                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                                    }`}
-                            >
-                                <span>{link.label}</span>
-                            </Link >
-                        ))
-                    }
-                </nav >
-            </aside >
-        </>
+            <nav className="p-3 space-y-1.5">
+                {ADMIN_LINKS.map(link => (
+                    <Link
+                        key={link.href}
+                        href={link.href}
+                        className={`group flex items-center px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                            isActive(link.href)
+                                ? 'bg-blue-500/20 text-white'
+                                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                        }`}
+                    >
+                        <span>{link.label}</span>
+                    </Link>
+                ))}
+            </nav>
+        </aside>
     );
 }

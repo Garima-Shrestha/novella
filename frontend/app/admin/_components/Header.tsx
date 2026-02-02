@@ -6,22 +6,26 @@ export default function Header() {
     const { logout, user } = useAuth();
 
     return (
-        <header className="sticky top-0 z-50 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-black/10 dark:border-white/10">
+        <header className="sticky top-0 z-50 bg-white border-b border-blue-100">
             <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Global">
                 <div className="flex h-16 items-center justify-between">
-                    {/* Left: Logo & Title */}
                     <div className="flex items-center gap-3">
-                        <Link href="/admin" className="flex items-center gap-2 group">
-                            <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-foreground text-background font-semibold">
-                                A
+                        <div className="flex items-center gap-3">
+                            <Link href="/admin" className="group">
+                                <img 
+                                    src="/images/logo.png" 
+                                    alt="Novella Logo" 
+                                    className="h-14 w-auto object-contain group-hover:opacity-80 transition-opacity"
+                                />
+                            </Link>
+                            <div className="h-6 w-[1px] bg-slate-200 mx-1" />
+                            <span className="text-sm font-bold tracking-tight text-slate-900">
+                                Admin
                             </span>
-                            <span className="text-base font-semibold tracking-tight group-hover:opacity-80 transition-opacity">
-                                Admin Panel
-                            </span>
-                        </Link>
+                        </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="h-6 flex items-center justify-center text-xs font-semibold">
+                        <div className="h-6 flex items-center justify-center text-xs font-bold text-blue-600">
                             {user?.email || 'Admin'}
                         </div>
                         <span className="text-sm font-medium sm:inline">
@@ -29,7 +33,7 @@ export default function Header() {
                                 onClick={() => {
                                     logout();
                                 }}
-                                className="w-full border flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-foreground/5 transition-colors text-left"
+                                className="w-full border border-red-200 flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-red-50 text-red-600 transition-colors text-left"
                             >
                                 Logout
                             </button>
