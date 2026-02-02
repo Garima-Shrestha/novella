@@ -124,9 +124,14 @@ export default function LoginForm(){
             }
             // handle redirect (optional)
             await checkAuth();
-            setTransition(() => {
-                router.push("/homepage");
-            });
+            const loggedInUser = res.data;
+
+        // redirect immediately based on role from login response
+        if (loggedInUser.role === "admin") {
+            router.push("/admin/users");
+        } else {
+            router.push("/homepage");
+        }
         }catch(err:Error | any){
             setError(err.message || "Login failed");
         }
