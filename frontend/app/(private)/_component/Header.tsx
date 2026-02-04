@@ -107,7 +107,7 @@ export default function Header() {
                 <Link href="/user/editprofile" className="block px-4 py-2 text-sm font-semibold hover:bg-gray-50">
                     Edit Profile
                 </Link>
-                <Link href="/rentals" className="block px-4 py-2 text-sm font-semibold hover:bg-gray-50">
+                <Link href="/user/account-details" className="block px-4 py-2 text-sm font-semibold hover:bg-gray-50">
                     Account Details
                 </Link>
                 <hr className="my-2 border-gray-100" />

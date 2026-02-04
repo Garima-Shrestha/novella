@@ -2,7 +2,7 @@
 "use server"
 
 import { redirect } from "next/navigation";
-import { registerUser, loginUser, updateUserProfile, fetchWhoAmI } from "../api/auth"
+import { registerUser, loginUser, updateUserProfile, fetchWhoAmI, changePassword } from "../api/auth"
 import { setUserData, setAuthToken, clearAuthCookies } from '../cookie'
 import { revalidatePath } from 'next/cache';
 
@@ -97,3 +97,26 @@ export async function handleUpdateProfile(profileData: FormData) {
         return { success: false, message: error.message };
     }
 }
+
+export const handleChangePassword = async (formData: any) => {
+    try {
+        const result = await changePassword(formData);
+
+        if (result.success) {
+            return {
+                success: true,
+                message: result.message || "Password changed successfully",
+            };
+        }
+
+        return {
+            success: false,
+            message: result.message || "Change password failed",
+        };
+    } catch (err: Error | any) {
+        return {
+            success: false,
+            message: err.message || "Change password failed",
+        };
+    }
+};

@@ -4,7 +4,8 @@ export const API = {
         REGISTER : '/api/auth/register',  // backend to route path
         LOGIN : '/api/auth/login',
         WHOAMI: "/api/auth/whoami",
-        UPDATEPROFILE: "/api/auth/update-profile"
+        UPDATEPROFILE: "/api/auth/update-profile",
+        CHANGEPASSWORD: "/api/auth/change-password",
     },
     ADMIN:{
         USER:{

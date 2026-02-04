@@ -20,3 +20,17 @@ export const editProfileSchema = z.object({
 });
 
 export type EditProfileData = z.infer<typeof editProfileSchema>;
+
+
+export const changePasswordSchema = z
+  .object({
+    oldPassword: z.string().min(8),
+    password: z.string().min(8),
+    confirmPassword: z.string().min(8),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export type ChangePasswordData = z.infer<typeof changePasswordSchema>;

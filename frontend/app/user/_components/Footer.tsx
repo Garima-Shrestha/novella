@@ -12,7 +12,7 @@ export default function Footer() {
           </p>
 
           <p className="text-xs md:text-sm font-semibold text-gray-600">
-            Contact: hello@novella.com
+            Contact: novella@gmail.com
           </p>
 
           <Link

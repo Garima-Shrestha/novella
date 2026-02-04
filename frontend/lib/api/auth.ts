@@ -71,3 +71,19 @@ export const updateUserProfile = async (updateData: any) => {
             );
     }
 }
+
+export const changePassword = async (passwordData: any) => {
+    try {
+        const response = await axios.put(
+            API.AUTH.CHANGEPASSWORD,
+            passwordData
+        );
+        return response.data;
+    } catch (err: Error | any) {
+        throw new Error(
+            err.response?.data?.message
+            || err.message
+            || "Change password failed"
+        );
+    }
+};
