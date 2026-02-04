@@ -16,7 +16,7 @@ export default function Footer() {
           </p>
 
           <Link
-            href="/privacy"
+            href="/privacy-policy"
             className="text-xs md:text-sm font-semibold text-blue-900 hover:text-blue-800 transition uppercase tracking-wider"
           >
             Privacy Policy
