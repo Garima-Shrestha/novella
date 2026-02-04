@@ -93,5 +93,30 @@ export class UserService {
         const updatedUser = await userRepository.updateOneUser(userId, data);
         return updatedUser;
     }
+
+    // Change password
+    async changePassword(userId: string, oldPassword: string, newPassword: string) {
+        const user = await userRepository.getUserById(userId);
+        if (!user) {
+            throw new HttpError(404, "User not found");
+        }
+
+        // Verify old password
+        const isValid = await bcryptjs.compare(oldPassword, user.password);
+        if (!isValid) {
+            throw new HttpError(401, "Old password is incorrect");
+        }
+
+        // Check if new password is same as old password
+        const isSame = await bcryptjs.compare(newPassword, user.password);
+        if (isSame) {
+            throw new HttpError(400, "New password cannot be the same as the old password");
+        }
+
+        // Hash new password and update
+        const updatedUser = await this.updateUser(userId, { password: newPassword });
+        return updatedUser;
+    }
+
 }
 

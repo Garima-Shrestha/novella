@@ -17,4 +17,7 @@ router.put(
     uploads.single("image"), // image
     authController.updateProfile
 )
+
+router.put("/change-password", authorizedMiddleware, authController.changePassword);
+
 export default router;
