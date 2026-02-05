@@ -45,12 +45,15 @@ export class AdminUserController {
 
     async getAllUsers(req: Request, res: Response) {
         try {
-            const users = await adminUserService.getAllUser();
+            const { page, size, searchTerm } = req.query as any;
+            const { users, pagination } = await adminUserService.getAllUsersPaginated(page, size, searchTerm);
             return res.status(200).json({
                 success: true,
                 data: users,
-                message: "All Users Fetched"
+                pagination,
+                message: "Users fetched successfully"
             });
+
         } catch (error: any) {
             return res.status(error.statusCode || 500).json({
                 success: false,

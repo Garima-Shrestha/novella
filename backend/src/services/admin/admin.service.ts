@@ -77,4 +77,20 @@ export class AdminUserService {
         const deleted = await userRepository.deleteOneUser(id);
         return deleted;
     }
+
+    async getAllUsersPaginated(page?: string, size?: string, searchTerm?: string) {
+    const currentPage = page ? parseInt(page, 10) : 1;
+    const pageSize = size ? parseInt(size, 10) : 10;
+
+    const { users, total } = await userRepository.getAllUsersPaginated(currentPage, pageSize, searchTerm);
+
+    const pagination = {
+        page: currentPage,
+        size: pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize),
+    };
+    return { users, pagination };
+}
+
 }
