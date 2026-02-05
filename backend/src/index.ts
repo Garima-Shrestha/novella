@@ -9,6 +9,7 @@ import path from 'path';
 
 import authRoutes from './routes/auth.route';
 import adminRoutes from './routes/admin.route';
+import bookRoutes from './routes/book.route';
 
 dotenv.config();
 console.log(process.env.PORT);
@@ -31,6 +32,7 @@ app.use(bodyParser.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin/users', adminRoutes);
+app.use('/api/books', bookRoutes); 
 
 async function start() {
     await connectDatabase();
