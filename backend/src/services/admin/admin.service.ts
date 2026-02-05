@@ -32,10 +32,10 @@ export class AdminUserService {
         return user;
     }
 
-    async getAllUser(){
-        const user = await userRepository.getAllUsers();
-        return user;
-    }
+    // async getAllUser(){
+    //     const user = await userRepository.getAllUsers();
+    //     return user;
+    // }
 
     async updateOneUser(id: string, data: any) {
         const user = await userRepository.getUserById(id);

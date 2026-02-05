@@ -5,7 +5,7 @@ export interface IBookRepository {
     createBook(data: Partial<IBook>): Promise<IBook>;
     getBookByTitle(title: string): Promise<IBook | null>;
     getBookById(id: string): Promise<IBook | null>;
-    getAllBooks(): Promise<IBook[]>;
+    // getAllBooks(): Promise<IBook[]>;
     updateOneBook(id: string, data: Partial<IBook>): Promise<IBook | null>;
     deleteOneBook(id: string): Promise<boolean | null>;
 
@@ -28,10 +28,10 @@ export class BookRepository implements IBookRepository {
         return book;
     }
 
-    async getAllBooks(): Promise<IBook[]> {
-        const books = await BookModel.find();
-        return books;
-    }
+    // async getAllBooks(): Promise<IBook[]> {
+    //     const books = await BookModel.find();
+    //     return books;
+    // }
 
     async updateOneBook(id: string, data: Partial<IBook>): Promise<IBook | null> {
         const updatedBook = await BookModel.findByIdAndUpdate(id, data, { new: true });

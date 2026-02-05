@@ -11,9 +11,28 @@ export class BookService {
         return book;
     }
 
-    // Get all books
-    async getAllBooks() {
-        const books = await bookRepository.getAllBooks();
-        return books;
+    // // Get all books
+    // async getAllBooks() {
+    //     const books = await bookRepository.getAllBooks();
+    //     return books;
+    // }
+
+
+    // Get all boooks
+    async getAllBooksPaginated(page?: string, size?: string, searchTerm?: string) {
+        const currentPage = page ? parseInt(page, 10) : 1;
+        const pageSize = size ? parseInt(size, 10) : 10;
+
+        const { books, total } = await bookRepository.getAllBooksPaginated(currentPage, pageSize, searchTerm);
+
+        return {
+            books,
+            pagination: {
+                page: currentPage,
+                size: pageSize,
+                total,
+                totalPages: Math.ceil(total / pageSize),
+            },
+        };
     }
 }

@@ -1,3 +1,4 @@
+import { QueryFilter } from "mongoose";
 import { IUser, UserModel } from "../models/user.model";
 
 export interface IUserRepository {
@@ -7,7 +8,7 @@ export interface IUserRepository {
     getUserByPhone(phone: string): Promise<IUser | null>;
 
     getUserById(id: string): Promise<IUser | null>;
-    getAllUsers(): Promise<IUser[]>;
+    // getAllUsers(): Promise<IUser[]>;
     updateOneUser(id: string, data: Partial<IUser>): Promise<IUser | null>;
     deleteOneUser(id: string): Promise<boolean | null>;
 
@@ -38,10 +39,10 @@ export class UserRepository implements IUserRepository {
         const user = await UserModel.findById(id);
         return user;
     }
-    async getAllUsers(): Promise<IUser[]> {
-        const users = await UserModel.find();
-        return users;
-    }
+    // async getAllUsers(): Promise<IUser[]> {
+    //     const users = await UserModel.find();
+    //     return users;
+    // }
     async updateOneUser(id: string, data: Partial<IUser>): Promise<IUser | null> {
         const updateUser = await UserModel.findByIdAndUpdate(id, data, {new: true});
         return updateUser;
@@ -56,7 +57,7 @@ export class UserRepository implements IUserRepository {
         size: number,
         searchTerm?: string
     ): Promise<{ users: IUser[]; total: number }> {
-        const filter: any = {};
+        const filter: QueryFilter<IUser> = {};
         if (searchTerm) {
             filter.$or = [
                 { username: { $regex: searchTerm, $options: "i" } },
