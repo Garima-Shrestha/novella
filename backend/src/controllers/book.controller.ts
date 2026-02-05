@@ -6,37 +6,7 @@ import { Request, Response } from "express";
 let bookService = new BookService();
 
 export class BookController {
-
-    // Create a new book by admin
-    async createBook(req: Request, res: Response) {
-        try {
-            const parsedData = CreateBookDto.safeParse(req.body);
-            if (!parsedData.success) {
-                return res.status(400).json({
-                    success: false,
-                    message: z.prettifyError(parsedData.error)
-                });
-            }
-
-            if (req.file) {
-                parsedData.data.coverImageUrl = `/uploads/${req.file.filename}`;
-            }
-
-            const newBook = await bookService.createBook(parsedData.data);
-            return res.status(201).json({
-                success: true,
-                data: newBook,
-                message: "Book created successfully"
-            });
-        } catch (error: any) {
-            return res.status(error.statusCode || 500).json({
-                success: false,
-                message: error.message || "Internal Server Error"
-            });
-        }
-    }
-
-    // Get a single book by ID by anyone
+    // Get a single book by ID
     async getBookById(req: Request, res: Response) {
         try {
             const userId = req.user?._id;
@@ -59,8 +29,7 @@ export class BookController {
         }
     }
 
-
-    // Get all books ny anyone
+    // Get all books
     async getAllBooks(req: Request, res: Response) {
         try {
             const userId = req.user?._id;
@@ -71,54 +40,6 @@ export class BookController {
             return res.status(200).json({ success: true, data: books, message: "All books fetched successfully" });
         } catch (error: any) {
             return res.status(error.statusCode || 500).json({ success: false, message: error.message || "Internal Server Error" });
-        }
-    }
-
-
-    // Update a book by ID by admin
-    async updateBook(req: Request, res: Response) {
-        try {
-            const bookId = req.params.id;
-            const parsedData = UpdateBookDto.safeParse(req.body);
-            if (!parsedData.success) {
-                return res.status(400).json({
-                    success: false,
-                    message: z.prettifyError(parsedData.error)
-                });
-            }
-
-            if (req.file) {
-                parsedData.data.coverImageUrl = `/uploads/${req.file.filename}`;
-            }
-
-            const updatedBook = await bookService.updateBook(bookId, parsedData.data);
-            return res.status(200).json({
-                success: true,
-                data: updatedBook,
-                message: "Book updated successfully"
-            });
-        } catch (error: any) {
-            return res.status(error.statusCode || 500).json({
-                success: false,
-                message: error.message || "Internal Server Error"
-            });
-        }
-    }
-
-    // Delete a book by ID by admin
-    async deleteBook(req: Request, res: Response) {
-        try {
-            const bookId = req.params.id;
-            await bookService.deleteBook(bookId);
-            return res.status(200).json({
-                success: true,
-                message: "Book deleted successfully"
-            });
-        } catch (error: any) {
-            return res.status(error.statusCode || 500).json({
-                success: false,
-                message: error.message || "Internal Server Error"
-            });
         }
     }
 }

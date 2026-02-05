@@ -1,3 +1,4 @@
+import { QueryFilter } from "mongoose";
 import { IBook, BookModel } from "../models/book.model";
 
 export interface IBookRepository {
@@ -7,6 +8,8 @@ export interface IBookRepository {
     getAllBooks(): Promise<IBook[]>;
     updateOneBook(id: string, data: Partial<IBook>): Promise<IBook | null>;
     deleteOneBook(id: string): Promise<boolean | null>;
+
+    getAllBooksPaginated(page: number, size: number, searchTerm?: string): Promise<{ books: IBook[]; total: number }>;
 }
 
 export class BookRepository implements IBookRepository {
@@ -39,4 +42,26 @@ export class BookRepository implements IBookRepository {
         const result = await BookModel.findByIdAndDelete(id);
         return result ? true : null;
     }
+
+    async getAllBooksPaginated(page: number, size: number, searchTerm?: string)
+        : Promise<{ books: IBook[]; total: number }> {
+        const filter: QueryFilter<IBook> = {};
+        if (searchTerm) {
+            filter.$or = [
+                { title: { $regex: searchTerm, $options: "i" } },
+                { author: { $regex: searchTerm, $options: "i" } },
+                { genre: { $regex: searchTerm, $options: "i" } }
+            ];
+        }
+
+        const [books, total] = await Promise.all([
+            BookModel.find(filter)
+                .skip((page - 1) * size)
+                .limit(size),
+            BookModel.countDocuments(filter)
+        ]);
+
+        return { books, total };
+    }
+
 }
