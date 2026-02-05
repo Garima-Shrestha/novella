@@ -8,7 +8,7 @@ import path from 'path';
 
 
 import authRoutes from './routes/auth.route';
-import adminRoutes from './routes/admin.route';
+import adminRoutes from './routes/admin/admin.route';
 import bookRoutes from './routes/book.route';
 
 dotenv.config();
