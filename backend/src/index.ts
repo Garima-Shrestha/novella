@@ -11,6 +11,8 @@ import authRoutes from './routes/auth.route';
 import adminRoutes from './routes/admin/admin.route';
 import bookRoutes from './routes/book.route';
 import adminBookRoutes from './routes/admin/book.route';
+import categoryRoutes from './routes/category.route';
+import adminCategoryRoutes from './routes/admin/category.route';
 
 dotenv.config();
 console.log(process.env.PORT);
@@ -35,6 +37,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin/users', adminRoutes);
 app.use('/api/books', bookRoutes); 
 app.use('/api/admin/books', adminBookRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/admin/categories', adminCategoryRoutes);
 
 async function start() {
     await connectDatabase();
