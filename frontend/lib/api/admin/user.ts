@@ -20,9 +20,16 @@ export const createUser = async (userData: any) => {
 }
 
 // Fetch all users
-export const fetchUsers = async () => {
+export const fetchUsers = async (
+      page: number, size: number, searchTerm?: string
+  ) => {
   try {
-    const response = await axios.get(API.ADMIN.USER.GET_ALL);
+    const response = await axios.get(
+      API.ADMIN.USER.GET_ALL,
+      {
+        params: { page, size, searchTerm }
+      }
+    );
     return response.data;
   } catch (err: any) {
     throw new Error(err.response?.data?.message || err.message || "Fetch users failed");
