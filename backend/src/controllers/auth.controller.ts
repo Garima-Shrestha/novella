@@ -98,29 +98,47 @@ export class AuthController {
 
     // Change Password
     async changePassword(req: Request, res: Response) {
-    try {
-        const userId = req.user?._id;
-        if (!userId) {
-            return res.status(400).json({ success: false, message: "User Id not found" });
+        try {
+            const userId = req.user?._id;
+            if (!userId) {
+                return res.status(400).json({ success: false, message: "User Id not found" });
+            }
+
+            const { oldPassword, password } = req.body;
+            if (!oldPassword || !password) {
+                return res.status(400).json({ success: false, message: "Old password and new password are required" });
+            }
+
+            const updatedUser = await userService.changePassword(userId, oldPassword, password);
+
+            return res.status(200).json({
+                success: true,
+                message: "Password changed successfully",
+            });
+        } catch (error: any) {
+            return res.status(error.statusCode || 500).json({
+                success: false,
+                message: error.message || "Internal Server Error",
+            });
         }
-
-        const { oldPassword, password } = req.body;
-        if (!oldPassword || !password) {
-            return res.status(400).json({ success: false, message: "Old password and new password are required" });
-        }
-
-        const updatedUser = await userService.changePassword(userId, oldPassword, password);
-
-        return res.status(200).json({
-            success: true,
-            message: "Password changed successfully",
-        });
-    } catch (error: any) {
-        return res.status(error.statusCode || 500).json({
-            success: false,
-            message: error.message || "Internal Server Error",
-        });
     }
-}
+
+    // Reset Password
+    async sendResetPasswordEmail(req: Request, res: Response) {
+        try {
+            const email = req.body.email;
+            const user = await userService.sendResetPasswordEmail(email);
+            return res.status(200).json(
+                { success: true,
+                    data: user,
+                    message: "If the email is registered, a reset link has been sent." }
+            );
+        } catch (error: Error | any) {
+            return res.status(error.statusCode ?? 500).json(
+                { success: false, message: error.message || "Internal Server Error" }
+            );
+        }
+    }
+
 
 } 
