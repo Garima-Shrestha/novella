@@ -123,7 +123,7 @@ export class AuthController {
         }
     }
 
-    // Reset Password
+    // Send Reset Password message
     async sendResetPasswordEmail(req: Request, res: Response) {
         try {
             const email = req.body.email;
@@ -140,5 +140,19 @@ export class AuthController {
         }
     }
 
-
+    // Reset Password
+    async resetPassword(req: Request, res: Response) {
+        try {
+            const token = req.params.token;
+            const { newPassword } = req.body;
+            await userService.resetPassword(token, newPassword);
+            return res.status(200).json(
+                { success: true, message: "Password has been reset successfully." }
+            );
+        } catch (error: Error | any) {
+            return res.status(error.statusCode ?? 500).json(
+                { success: false, message: error.message || "Internal Server Error" }
+            );
+        }
+    }
 } 

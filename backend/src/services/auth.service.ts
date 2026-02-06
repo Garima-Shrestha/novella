@@ -120,7 +120,7 @@ export class UserService {
         return updatedUser;
     }
 
-    // Reset Password
+    // Send Reset Password message
     async sendResetPasswordEmail(email?: string) {
         if (!email) {
             throw new HttpError(400, "Email is required");
@@ -137,5 +137,24 @@ export class UserService {
 
     }
 
+    // Reset Password
+    async resetPassword(token?: string, newPassword?: string) {
+        try {
+            if (!token || !newPassword) {
+                throw new HttpError(400, "Token and new password are required");
+            }
+            const decoded: any = jwt.verify(token, JWT_SECRET);
+            const userId = decoded.id;
+            const user = await userRepository.getUserById(userId);
+            if (!user) {
+                throw new HttpError(404, "User not found");
+            }
+            const hashedPassword = await bcryptjs.hash(newPassword, 10);
+            await userRepository.updateOneUser(userId, { password: hashedPassword });
+            return user;
+        } catch (error) {
+            throw new HttpError(400, "Invalid or expired token");
+        }
+    }
 }
 

@@ -21,6 +21,9 @@ router.put(
 router.put("/change-password", authorizedMiddleware, authController.changePassword);
 
 router.post("/request-password-reset", 
-    authController.sendResetPasswordEmail);   // Reset Password
+    authController.sendResetPasswordEmail);   // Send Reset Password message
+
+router.post("/reset-password/:token", authController.resetPassword);
+
 
 export default router;
