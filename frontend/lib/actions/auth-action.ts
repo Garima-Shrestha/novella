@@ -2,7 +2,7 @@
 "use server"
 
 import { redirect } from "next/navigation";
-import { registerUser, loginUser, updateUserProfile, fetchWhoAmI, changePassword } from "../api/auth"
+import { registerUser, loginUser, updateUserProfile, fetchWhoAmI, changePassword, requestPasswordReset, resetPassword } from "../api/auth"
 import { setUserData, setAuthToken, clearAuthCookies } from '../cookie'
 import { revalidatePath } from 'next/cache';
 
@@ -118,5 +118,35 @@ export const handleChangePassword = async (formData: any) => {
             success: false,
             message: err.message || "Change password failed",
         };
+    }
+};
+
+export const handleRequestPasswordReset = async (email: string) => {
+    try {
+        const response = await requestPasswordReset(email);
+        if (response.success) {
+            return {
+                success: true,
+                message: 'Password reset email sent successfully'
+            }
+        }
+        return { success: false, message: response.message || 'Request password reset failed' }
+    } catch (error: Error | any) {
+        return { success: false, message: error.message || 'Request password reset action failed' }
+    }
+};
+
+export const handleResetPassword = async (token: string, newPassword: string) => {
+    try {
+        const response = await resetPassword(token, newPassword);
+        if (response.success) {
+            return {
+                success: true,
+                message: 'Password has been reset successfully'
+            }
+        }
+        return { success: false, message: response.message || 'Reset password failed' }
+    } catch (error: Error | any) {
+        return { success: false, message: error.message || 'Reset password action failed' }
     }
 };

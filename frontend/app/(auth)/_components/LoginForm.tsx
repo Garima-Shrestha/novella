@@ -207,7 +207,7 @@ export default function LoginForm(){
                                 <p className="text-[10px] text-red-600 font-medium ml-1">{errors.password.message}</p>
                             )}
                             <div className="flex justify-end mt-1">
-                                <Link href="#" className="text-[10px] text-blue-600 font-bold hover:underline uppercase tracking-tighter">Forgot Password?</Link>
+                                <Link href="/forget-password" className="text-[10px] text-blue-600 font-bold hover:underline uppercase tracking-tighter">Forgot Password?</Link>
                             </div>
                         </div>
 

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthToken, getUserData} from "@/lib/cookie";
 
-const publicRoutes = [ '/landingpage', '/login', '/register'];
-// const publicRoutes = [/login', '/register', '/forget-password', '/reset-password'];
+const publicRoutes = [ '/landingpage', '/login', '/register', '/forget-password', '/reset-password'];
 const adminRoutes = ['/admin'];
 const userRoutes = ['/user'];
 
@@ -47,6 +46,8 @@ export const config = {
         '/user/:path*',
         '/login',
         '/register',
-        '/landingpage'
+        '/landingpage',
+        '/forget-password',
+        '/reset-password/:path*'
     ]
 }
