@@ -73,32 +73,32 @@ export default function CreateUserForm() {
                     // Field duplicate errors
                     if (response.message?.includes("duplicate key")) {
                         if (response.message.includes("username")) {
-                            toast.error("Username already exists");
+                            toast.error("Username already exists", { containerId: "admin-user-create" });
                         } else if (response.message.includes("email")) {
-                            toast.error("Email already exists");
+                            toast.error("Email already exists", { containerId: "admin-user-create" });
                         } else if (response.message.includes("phone")) {
-                            toast.error("Phone number already exists");
+                            toast.error("Phone number already exists", { containerId: "admin-user-create" });
                         } else {
-                            toast.error("Duplicate value error");
+                            toast.error("Duplicate value error", { containerId: "admin-user-create" });
                         }
                         return;
                     } else {
-                        toast.error(response.message || "Create user profile failed");
+                        toast.error(response.message || "Create user profile failed", { containerId: "admin-user-create" });
                         setError(response.message || "Create user profile failed");
                         return;
                     }
                 }
 
                 // Success message
-                toast.success('Profile Created successfully');
+                toast.success("Profile Created successfully", {
+                    containerId: "admin-user-create",
+                    autoClose: 1000,
+                    onClose: () => router.push("/admin/users"),
+                });
 
-                // give user a moment to see toast
-                setTimeout(() => {
-                    router.push("/admin/users");
-                }, 1000);
 
             } catch (error: Error | any) {
-                toast.error(error.message || 'Create user profile failed');
+                toast.error(error.message || 'Create user profile failed', { containerId: "admin-user-create" });
                 setError(error.message || 'Create user profile failed');
             }
         // });
@@ -106,7 +106,7 @@ export default function CreateUserForm() {
 
     return (    
         <div className="p-8 max-w-lg mx-auto bg-white border border-slate-200 rounded-xl shadow-sm mt-6">
-            <ToastContainer />
+                  <ToastContainer containerId="admin-user-create" position="top-right" autoClose={3000} />
 
                     <h2 className="text-2xl font-black tracking-tight text-blue-900 mb-8">Create user account</h2>
 

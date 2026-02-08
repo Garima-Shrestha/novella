@@ -68,7 +68,7 @@ export default function UpdateUserForm({ user }: { user: any }) {
       !!data.image;
 
     if (!isChanged) {
-      toast.info("No changes detected");
+      toast.info("No changes detected", { containerId: "admin-user-edit" });
       return;
     }
 
@@ -92,34 +92,37 @@ export default function UpdateUserForm({ user }: { user: any }) {
       if (!res?.success) {
         if (res.message?.includes("duplicate key")) {
           if (res.message.includes("username")) {
-            toast.error("Username already exists");
+            toast.error("Username already exists", { containerId: "admin-user-edit" });
           } else if (res.message.includes("email")) {
-            toast.error("Email already exists");
+            toast.error("Email already exists", { containerId: "admin-user-edit" });
           } else if (res.message.includes("phone")) {
-            toast.error("Phone number already exists");
+            toast.error("Phone number already exists", { containerId: "admin-user-edit" });
           } else {
-            toast.error("Duplicate value error");
+            toast.error("Duplicate value error", { containerId: "admin-user-edit" });
           }
         } else {
-          toast.error(res.message || "Update failed");
+          toast.error(res.message || "Update failed", { containerId: "admin-user-edit" });
           setError(res.message || "Update failed");
         }
         return;
       }
+     toast.success("User updated successfully", {
+      containerId: "admin-user-edit",
+      autoClose: 1000,
+      onClose: () => router.push("/admin/users"),
+    });
 
-      toast.success("User updated successfully");
 
-      setTimeout(() => {
-        router.push("/admin/users");
-      }, 1000);
     } catch (err: any) {
-      toast.error(err.message || "Something went wrong");
+      toast.error(err.message || "Something went wrong", {
+        containerId: "admin-user-edit",
+      });
     }
   };
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
-      <ToastContainer />
+      <ToastContainer containerId="admin-user-edit" position="top-right" autoClose={3000} />
 
       <div className="w-full max-w-lg bg-white rounded-xl border border-gray-200 p-8">
         <h2 className="text-2xl font-black tracking-tight text-blue-900 mb-8">

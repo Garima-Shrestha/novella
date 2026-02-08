@@ -6,8 +6,13 @@ import { toast } from "react-toastify";
 import { changePasswordSchema, ChangePasswordData } from "../schema";
 import { handleChangePassword } from "@/lib/actions/auth-action";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AccountDetailsForm() {
+    const router = useRouter();
+    const { logout } = useAuth();
+
     const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<ChangePasswordData>({
         resolver: zodResolver(changePasswordSchema),
     });
@@ -27,6 +32,9 @@ export default function AccountDetailsForm() {
                 throw new Error(response.message || "Password change failed");
             }
             toast.success("Password updated successfully");
+
+            await logout();
+
             reset(); // clear form
         } catch (err: any) {
         setError(err.message || "Password change failed");
