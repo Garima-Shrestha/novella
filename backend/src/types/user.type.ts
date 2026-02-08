@@ -2,7 +2,7 @@ import z from 'zod';
 
 export const UserSchema = z.object ({
     username: z.string().min(2),
-    email: z.email(),
+    email: z.string().email(),
     countryCode: z.string().regex(/^\+\d{1,3}$/),
     phone: z.string().regex(/^\d{8,15}$/),
     password: z.string().min(8),
