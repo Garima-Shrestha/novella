@@ -16,6 +16,13 @@ export const API = {
             GET_ONE: (id: string) => `/api/admin/users/${id}`,
             UPDATE: (id: string) => `/api/admin/users/${id}`,
             DELETE: (id: string) => `/api/admin/users/${id}`,
+        },
+        BOOK: {
+            CREATE: '/api/admin/books/',
+            GET_ALL: '/api/admin/books/',
+            GET_ONE: (id: string) => `/api/admin/books/${id}`,
+            UPDATE: (id: string) => `/api/admin/books/${id}`,
+            DELETE: (id: string) => `/api/admin/books/${id}`,
         }
     }
 }

@@ -6,6 +6,8 @@ const adminRoutes = ['/admin'];
 const userRoutes = ['/user'];
 
 export async function proxy(request: NextRequest) {
+    console.log("MIDDLEWARE PATH:", request.nextUrl.pathname);
+
     const { pathname } = request.nextUrl;
     const token = await getAuthToken();
     const user = token ? await getUserData() : null;
