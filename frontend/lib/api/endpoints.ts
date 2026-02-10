@@ -23,6 +23,13 @@ export const API = {
             GET_ONE: (id: string) => `/api/admin/books/${id}`,
             UPDATE: (id: string) => `/api/admin/books/${id}`,
             DELETE: (id: string) => `/api/admin/books/${id}`,
+        },
+        CATEGORY: {
+            CREATE: '/api/admin/categories/',
+            GET_ALL: '/api/admin/categories/',
+            GET_ONE: (id: string) => `/api/admin/categories/${id}`,
+            UPDATE: (id: string) => `/api/admin/categories/${id}`,
+            DELETE: (id: string) => `/api/admin/categories/${id}`,
         }
     }
 }
