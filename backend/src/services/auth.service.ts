@@ -120,8 +120,26 @@ export class UserService {
         return updatedUser;
     }
 
+    // // Send Reset Password message
+    // async sendResetPasswordEmail(email?: string) {
+    //     if (!email) {
+    //         throw new HttpError(400, "Email is required");
+    //     }
+    //     const user = await userRepository.getUserByEmail(email);
+    //     if (!user) {
+    //         throw new HttpError(404, "User not found");
+    //     }
+    //     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' }); // 1 hour expiry
+    //     const resetLink = `${CLIENT_URL}/reset-password?token=${token}`;
+    //     const html = `<p>Click <a href="${resetLink}">here</a> to reset your password. This link will expire in 1 hour.</p>`;
+    //     await sendEmail(user.email, "Password Reset", html);
+    //     return user;
+
+    // }
+
+
     // Send Reset Password message
-    async sendResetPasswordEmail(email?: string) {
+    async sendResetPasswordEmail(email?: string, redirectUrl?: string) {
         if (!email) {
             throw new HttpError(400, "Email is required");
         }
@@ -130,7 +148,8 @@ export class UserService {
             throw new HttpError(404, "User not found");
         }
         const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' }); // 1 hour expiry
-        const resetLink = `${CLIENT_URL}/reset-password?token=${token}`;
+        const baseUrl = redirectUrl || CLIENT_URL;
+        const resetLink = `${baseUrl}/reset-password?token=${token}`;
         const html = `<p>Click <a href="${resetLink}">here</a> to reset your password. This link will expire in 1 hour.</p>`;
         await sendEmail(user.email, "Password Reset", html);
         return user;
