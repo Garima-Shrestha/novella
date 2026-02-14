@@ -1,5 +1,6 @@
 import { handleGetOneBook } from "@/lib/actions/admin/books-before-renting-action";
 import UpdateBookForm from "../../_components/UpdateBookForm";
+import { handleGetAllCategories } from "@/lib/actions/admin/category-action";
 
 export default async function Page({
     params,
@@ -12,15 +13,18 @@ export default async function Page({
         throw new Error("Book id missing in route.");
     }
 
-    const response = await handleGetOneBook(id);
+    const [bookRes, catRes] = await Promise.all([
+        handleGetOneBook(id),
+        handleGetAllCategories()
+    ]);
 
-    if (!response.success) {
-        throw new Error(response.message || "Failed to load book");
-    }
+    if (!bookRes.success) throw new Error(bookRes.message || "Failed to load book");
+
+    const categories = catRes.success ? catRes.categories : [];
 
     return (
         <div>
-            <UpdateBookForm book={response.data} />;
+            <UpdateBookForm book={bookRes.data} categories={categories} />
         </div>
     );
 }

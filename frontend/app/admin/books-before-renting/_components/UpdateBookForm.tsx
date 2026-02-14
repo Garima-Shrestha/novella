@@ -11,7 +11,12 @@ import { BookEditSchema, BookEditData } from "../schema";
 import { handleUpdateBook } from "@/lib/actions/admin/books-before-renting-action";
 
 
-export default function UpdateBookForm({ book }: {book: any;}) {
+interface Category {
+    _id: string;
+    name: string;
+}
+
+export default function UpdateBookForm({ book, categories }: { book: any; categories: Category[] }) {
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -45,7 +50,7 @@ export default function UpdateBookForm({ book }: {book: any;}) {
 
         setValue("title", book.title);
         setValue("author", book.author);
-        setValue("genre", book.genre);
+        setValue("genre", book.genre?._id || book.genre);
         setValue("pages", book.pages);
         setValue("price", book.price);
         setValue("publishedDate", book.publishedDate);
@@ -212,11 +217,17 @@ export default function UpdateBookForm({ book }: {book: any;}) {
                     {/* Genre */}
                     <div className="space-y-1">
                         <label className="text-[11px] font-bold text-slate-700 uppercase">Genre</label>
-                        <input
+                        <select
                             {...register("genre")}
-                            placeholder="Genre"
-                            className="h-9 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none placeholder:text-slate-400"
-                        />
+                            className="h-9 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:ring-0 focus:border-slate-300"
+                        >
+                            <option value="">Select a category</option>
+                            {categories.map((cat) => (
+                                <option key={cat._id} value={cat._id}>
+                                    {cat.name}
+                                </option>
+                            ))}
+                        </select>
                     {errors.genre && <p className="text-xs text-red-600">{errors.genre.message}</p>}
                     </div>
 

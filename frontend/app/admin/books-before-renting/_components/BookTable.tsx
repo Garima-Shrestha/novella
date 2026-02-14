@@ -12,7 +12,10 @@ interface Book {
     _id: string;
     title: string;
     author: string;
-    genre: string;
+    genre?: {
+        _id: string;
+        name: string;
+    };
     pages: number;
     price: number;
     publishedDate?: string;
@@ -224,7 +227,7 @@ export default function BookTable({ books, pagination, search }: { books: Book[]
                         </td>
                         <td className="p-4 text-sm text-gray-800">{book.title}</td>
                         <td className="p-4 text-sm text-gray-800">{book.author}</td>
-                        <td className="p-4 text-sm text-gray-800">{book.genre}</td>
+                        <td className="p-4 text-sm text-gray-800">{book.genre?.name || "Uncategorized"}</td>
                         <td className="p-4 text-sm text-gray-800">{book.pages}</td>
                         <td className="p-4 text-sm text-gray-800">${book.price}</td>
                         <td className="p-4 space-x-2">

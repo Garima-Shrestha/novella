@@ -108,7 +108,7 @@ export default async function Page({
                         Genre
                         </p>
                         <p className="mt-1 text-sm text-slate-900 break-words">
-                        {book.genre}
+                        {typeof book.genre === 'object' ? book.genre.name : (book.genre || "-")}
                         </p>
                     </div>
 

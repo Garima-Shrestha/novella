@@ -6,7 +6,7 @@ const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/web
 export const BookSchema = z.object({
     title: z.string().min(1, { message: "Title is required" }),
     author: z.string().min(1, { message: "Author is required" }),
-    genre: z.string().min(1, { message: "Genre is required" }),
+    genre: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid Category selection"),
     pages: z.coerce
         .number()
         .int({ message: "Pages must be an integer" })
@@ -29,7 +29,7 @@ export type BookData = z.infer<typeof BookSchema>;
 export const BookEditSchema = z.object({
     title: z.string().min(1).optional(),
     author: z.string().min(1).optional(),
-    genre: z.string().min(1).optional(),
+    genre: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid Category selection").optional(),
     pages: z.coerce
         .number()
         .int({ message: "Pages must be an integer" })

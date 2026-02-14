@@ -9,7 +9,13 @@ import { handleCreateBook } from "@/lib/actions/admin/books-before-renting-actio
 import { useRouter } from "next/navigation";
 import "react-toastify/dist/ReactToastify.css";
 
-export default function CreateBookForm() {
+
+interface Category {
+    _id: string;
+    name: string;
+}
+
+export default function CreateBookForm({ categories }: { categories: Category[] }) {
     const router = useRouter();
     const [pending, startTransition] = useTransition();
 
@@ -164,13 +170,18 @@ export default function CreateBookForm() {
                 {/* Genre */}
                 <div className="space-y-1">
                     <label htmlFor="genre" className="text-[11px] font-bold text-slate-700 uppercase">Genre</label>
-                    <input
+                    <select
                         id="genre"
-                        type="text"
                         {...register("genre")}
-                        placeholder="Genre"
-                        className="h-9 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none placeholder:text-slate-400"
-                    />
+                        className="h-9 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:ring-0 focus:border-slate-300"
+                    >
+                        <option value="">Select a category</option>
+                        {categories.map((cat) => (
+                            <option key={cat._id} value={cat._id}>
+                                {cat.name}
+                            </option>
+                        ))}
+                    </select>
                     {errors.genre && <p className="text-xs text-red-600">{errors.genre.message}</p>}
                 </div>
 
