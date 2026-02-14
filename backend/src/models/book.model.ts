@@ -4,7 +4,7 @@ import { BookType } from "../types/book.type";
 const BookSchema: Schema = new Schema({
     title: { type: String, required: true, unique: true, minLength: 1 },
     author: { type: String, required: true },
-    genre: { type: String, required: true },
+    genre: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     pages: { type: Number, required: true, min: 1 },
     publishedDate: { type: String, required: true },
     price: { type: Number, required: true, min: 0 },

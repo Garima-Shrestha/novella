@@ -19,12 +19,12 @@ export class BookRepository implements IBookRepository {
     }
 
     async getBookByTitle(title: string): Promise<IBook | null> {
-        const book = await BookModel.findOne({ title: { $regex: `^${title}$`, $options: "i" } });
+        const book = await BookModel.findOne({ title: { $regex: `^${title}$`, $options: "i" } }).populate("genre");
         return book;
     }
 
     async getBookById(id: string): Promise<IBook | null> {
-        const book = await BookModel.findById(id);
+        const book = await BookModel.findById(id).populate("genre");
         return book;
     }
 
@@ -34,7 +34,7 @@ export class BookRepository implements IBookRepository {
     // }
 
     async updateOneBook(id: string, data: Partial<IBook>): Promise<IBook | null> {
-        const updatedBook = await BookModel.findByIdAndUpdate(id, data, { new: true });
+        const updatedBook = await BookModel.findByIdAndUpdate(id, data, { new: true }).populate("genre");
         return updatedBook;
     }
 
@@ -50,14 +50,14 @@ export class BookRepository implements IBookRepository {
             filter.$or = [
                 { title: { $regex: searchTerm, $options: "i" } },
                 { author: { $regex: searchTerm, $options: "i" } },
-                { genre: { $regex: searchTerm, $options: "i" } }
             ];
         }
 
         const [books, total] = await Promise.all([
             BookModel.find(filter)
                 .skip((page - 1) * size)
-                .limit(size),
+                .limit(size)
+                .populate("genre"),
             BookModel.countDocuments(filter)
         ]);
 
