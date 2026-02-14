@@ -2,6 +2,7 @@ import request from "supertest";
 import app from "../../app";
 import { BookModel } from "../../models/book.model";
 import { UserModel } from "../../models/user.model";
+import { CategoryModel } from "../../models/category.model";
 import bcryptjs from "bcryptjs";
 
 describe("Admin Book Integration Tests", () => {
@@ -17,7 +18,7 @@ describe("Admin Book Integration Tests", () => {
     const sampleBook = {
         title: "Sample Book",
         author: "Author One",
-        genre: "Fiction",
+        genre: "",
         pages: 100,
         price: 19.99,
         publishedDate: "2023-01-01",
@@ -27,96 +28,94 @@ describe("Admin Book Integration Tests", () => {
 
     let adminToken = "";
     let bookId = "";
+    let categoryId = "";
 
     beforeAll(async () => {
-        // cleanup old stuff (avoid duplicate unique constraints)
-        await UserModel.deleteMany({
-        $or: [
-            { email: adminUser.email },
-            { username: adminUser.username },
-            { phone: adminUser.phone },
-        ],
-        });
+        await UserModel.deleteMany({ $or: [{ email: adminUser.email }, { username: adminUser.username }, { phone: adminUser.phone }] });
+        await BookModel.deleteMany({});
+        await CategoryModel.deleteMany({});
 
-        await BookModel.deleteMany({ title: sampleBook.title });
+        const category = await CategoryModel.create({ name: "Fiction" });
+        categoryId = category._id.toString();
+        sampleBook.genre = categoryId;
 
-        // ✅ create admin with hashed password (login uses bcrypt.compare)
         const hashedPassword = await bcryptjs.hash(adminUser.password, 10);
         await UserModel.create({ ...adminUser, password: hashedPassword });
 
-        // ✅ login admin to get JWT
         const loginRes = await request(app)
-        .post("/api/auth/login")
-        .send({ email: adminUser.email, password: adminUser.password });
+            .post("/api/auth/login")
+            .send({ email: adminUser.email, password: adminUser.password });
 
         adminToken = loginRes.body.token;
     });
 
     afterAll(async () => {
-        await BookModel.deleteMany({
-        $or: [{ title: sampleBook.title }, { title: "Updated Book" }],
+        await BookModel.deleteMany({});
+        await UserModel.deleteMany({ $or: [{ email: adminUser.email }, { username: adminUser.username }, { phone: adminUser.phone }] });
+        await CategoryModel.deleteMany({});
+    });
+
+    describe("POST /api/admin/books", () => {
+        test("creates a new book", async () => {
+            const res = await request(app)
+                .post("/api/admin/books")
+                .set("Authorization", `Bearer ${adminToken}`)
+                .send(sampleBook);
+
+            expect(res.status).toBe(201);
+            expect(res.body).toHaveProperty("success", true);
+            expect(res.body.data).toHaveProperty("title", sampleBook.title);
+
+            bookId = res.body.data._id;
         });
+    });
 
-        await UserModel.deleteMany({
-        $or: [
-            { email: adminUser.email },
-            { username: adminUser.username },
-            { phone: adminUser.phone },
-        ],
+    describe("GET /api/admin/books/:id", () => {
+        test("fetch a single book by id", async () => {
+            const res = await request(app)
+                .get(`/api/admin/books/${bookId}`)
+                .set("Authorization", `Bearer ${adminToken}`);
+
+            expect(res.status).toBe(200);
+            expect(res.body).toHaveProperty("success", true);
+            expect(res.body.data).toHaveProperty("title", sampleBook.title);
         });
     });
 
-    test("POST /api/admin/books - creates a new book", async () => {
-        const res = await request(app)
-        .post("/api/admin/books")
-        .set("Authorization", `Bearer ${adminToken}`)
-        .send(sampleBook);
+    describe("PUT /api/admin/books/:id", () => {
+        test("update a book", async () => {
+            const res = await request(app)
+                .put(`/api/admin/books/${bookId}`)
+                .set("Authorization", `Bearer ${adminToken}`)
+                .send({ title: "Updated Book" });
 
-        expect(res.status).toBe(201);
-        expect(res.body).toHaveProperty("success", true);
-        expect(res.body.data).toHaveProperty("title", sampleBook.title);
-
-        bookId = res.body.data._id;
+            expect(res.status).toBe(200);
+            expect(res.body).toHaveProperty("success", true);
+            expect(res.body.data).toHaveProperty("title", "Updated Book");
+        });
     });
 
-    test("GET /api/admin/books/:id - fetch a single book by id", async () => {
-        const res = await request(app)
-        .get(`/api/admin/books/${bookId}`)
-        .set("Authorization", `Bearer ${adminToken}`);
+    describe("GET /api/admin/books", () => {
+        test("fetch all books with pagination", async () => {
+            const res = await request(app)
+                .get("/api/admin/books?page=1&size=10")
+                .set("Authorization", `Bearer ${adminToken}`);
 
-        expect(res.status).toBe(200);
-        expect(res.body).toHaveProperty("success", true);
-        expect(res.body.data).toHaveProperty("title", sampleBook.title);
+            expect(res.status).toBe(200);
+            expect(res.body).toHaveProperty("success", true);
+            expect(res.body).toHaveProperty("pagination");
+            expect(Array.isArray(res.body.data)).toBe(true);
+        });
     });
 
-    test("PUT /api/admin/books/:id - update a book", async () => {
-        const res = await request(app)
-        .put(`/api/admin/books/${bookId}`)
-        .set("Authorization", `Bearer ${adminToken}`)
-        .send({ title: "Updated Book" });
+    describe("DELETE /api/admin/books/:id", () => {
+        test("delete a book", async () => {
+            const res = await request(app)
+                .delete(`/api/admin/books/${bookId}`)
+                .set("Authorization", `Bearer ${adminToken}`);
 
-        expect(res.status).toBe(200);
-        expect(res.body).toHaveProperty("success", true);
-        expect(res.body.data).toHaveProperty("title", "Updated Book");
-    });
-
-    test("GET /api/admin/books - fetch all books with pagination", async () => {
-        const res = await request(app)
-        .get("/api/admin/books?page=1&size=10")
-        .set("Authorization", `Bearer ${adminToken}`);
-
-        expect(res.status).toBe(200);
-        expect(res.body).toHaveProperty("success", true);
-        expect(res.body).toHaveProperty("pagination");
-        expect(Array.isArray(res.body.data)).toBe(true);
-    });
-
-    test("DELETE /api/admin/books/:id - delete a book", async () => {
-        const res = await request(app)
-        .delete(`/api/admin/books/${bookId}`)
-        .set("Authorization", `Bearer ${adminToken}`);
-
-        expect(res.status).toBe(200);
-        expect(res.body).toHaveProperty("success", true);
+            expect(res.status).toBe(200);
+            expect(res.body).toHaveProperty("success", true);
+        });
     });
 });
