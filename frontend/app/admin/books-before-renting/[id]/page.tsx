@@ -27,7 +27,6 @@ export default async function Page({
 
     return (
         <div className="w-full font-sans antialiased">
-            {/* Top bar */}
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <Link
                 href="/admin/books-before-renting"
@@ -46,7 +45,6 @@ export default async function Page({
             </div>
 
             <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-            {/* Header strip */}
             <div className="border-b border-gray-200 bg-[#eef3ff] px-6 py-5">
                 <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
@@ -60,11 +58,8 @@ export default async function Page({
                 </div>
             </div>
 
-            {/* Body */}
             <div className="p-6">
-                {/* ALWAYS image left + details right (even on smaller widths) */}
                 <div className="flex items-start gap-6">
-                {/* LEFT: fixed-size cover box */}
                 <div className="shrink-0">
                     <div className="w-[130px] h-[180px] overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
                     {imageSrc ? (
@@ -82,7 +77,6 @@ export default async function Page({
                     </div>
                 </div>
 
-                {/* RIGHT: details */}
                 <div className="min-w-0 flex-1">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="rounded-lg border border-gray-200 bg-white p-4 min-w-0">

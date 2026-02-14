@@ -190,7 +190,7 @@ export default function UpdateBookForm({ book, categories }: { book: any; catego
                     {errors.coverImage && <p className="text-xs text-red-600 mt-2">{errors.coverImage.message}</p>}
                 </div>
 
-                {/* Text Fields */}
+
                 <div className="space-y-4">
                     {/* Title */}
                     <div className="space-y-1">
