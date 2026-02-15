@@ -14,7 +14,7 @@ interface CategoryPageProps {
 const capitalizeFirstLetter = (text: string) =>
   text.charAt(0).toUpperCase() + text.slice(1);
 
-const CategoryPage: React.FC<CategoryPageProps> = ({ categories }) => {
+export default function CategoryPage({ categories }: CategoryPageProps) {
   if (!categories || categories.length === 0) {
     return <p className="text-gray-500">No categories available</p>;
   }
@@ -28,6 +28,4 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ categories }) => {
       ))}
     </div>
   );
-};
-
-export default CategoryPage;
+}

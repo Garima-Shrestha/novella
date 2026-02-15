@@ -13,6 +13,10 @@ export const API = {
         GET_ALL: '/api/categories/',
         GET_ONE: (id: string) => `/api/categories/${id}`,
     },
+    BOOK: {
+        GET_ALL: '/api/books/',
+        GET_ONE: (id: string) => `/api/books/${id}`,
+    },
     ADMIN:{
         USER:{
             CREATE: '/api/admin/users/',
