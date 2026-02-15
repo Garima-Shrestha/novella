@@ -206,7 +206,9 @@ export default function BookTable({ books, pagination, search }: { books: Book[]
                     <th className="p-4 text-left text-xs font-black text-gray-700 uppercase tracking-wider">Genre</th>
                     <th className="p-4 text-left text-xs font-black text-gray-700 uppercase tracking-wider">Pages</th>
                     <th className="p-4 text-left text-xs font-black text-gray-700 uppercase tracking-wider">Price</th>
-                    <th className="p-4 text-left text-xs font-black text-gray-700 uppercase tracking-wider">Actions</th>
+                    <th className="p-4 text-left text-xs font-black text-gray-700 uppercase tracking-wider whitespace-nowrap w-[220px]">
+                        Actions
+                    </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -230,27 +232,29 @@ export default function BookTable({ books, pagination, search }: { books: Book[]
                         <td className="p-4 text-sm text-gray-800">{book.genre?.name || "Uncategorized"}</td>
                         <td className="p-4 text-sm text-gray-800">{book.pages}</td>
                         <td className="p-4 text-sm text-gray-800">${book.price}</td>
-                        <td className="p-4 space-x-2">
-                        <Link
+                        <td className="p-4 w-[220px]">
+                        <div className="flex items-center gap-2">
+                            <Link
                             href={`/admin/books-before-renting/${book._id}`}
                             className="text-xs text-blue-600 border border-blue-600 px-3 py-1.5 rounded font-bold uppercase hover:bg-blue-50"
-                        >
+                            >
                             View
-                        </Link>
+                            </Link>
 
-                        <Link
+                            <Link
                             href={`/admin/books-before-renting/${book._id}/edit`}
                             className="text-xs text-white bg-blue-600 px-3 py-1.5 rounded font-bold uppercase hover:bg-blue-700"
-                        >
+                            >
                             Edit
-                        </Link>
+                            </Link>
 
-                        <button
+                            <button
                             onClick={() => setDeleteId(book._id)}
                             className="text-xs text-white bg-red-600 px-3 py-1.5 rounded font-bold uppercase hover:bg-red-700"
-                        >
+                            >
                             Delete
-                        </button>
+                            </button>
+                        </div>
                         </td>
                     </tr>
                     ))}

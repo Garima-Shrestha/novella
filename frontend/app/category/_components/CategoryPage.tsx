@@ -26,7 +26,7 @@ export default function CategoryPage({ categories, books }: Props) {
   const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
   return (
-    <div>
+    <div className="max-w-7xl mx-auto px-6 py-10 bg-white">
       {categories.map((category) => {
         const categoryBooks = books.filter(
           (book) => book.genre?._id === category._id
@@ -35,20 +35,23 @@ export default function CategoryPage({ categories, books }: Props) {
         // if (categoryBooks.length === 0) return null;
 
         return (
-          <section key={category._id} className="mb-16">
-            <h2 className="text-2xl font-bold mb-6">
+          <section key={category._id} className="mb-10 last:mb-0">
+            {/* Standardized Genre Heading */}
+            <h2 className="text-2xl font-bold text-slate-900 mb-4">
               {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
             </h2>
 
-            <div className="flex flex-wrap gap-x-10 gap-y-12">
+            {/* Fixed horizontal and vertical gap between books */}
+            <div className="flex flex-wrap gap-6">
               {categoryBooks.map((book) => (
                 <Link
                   key={book._id}
                   href={`/books-before-renting/${book._id}`}
-                  className="shrink-0"
+                  className="shrink-0 block"
                 >
                   <div className="w-40">
-                    <div className="w-40 h-56 bg-slate-100 rounded-md overflow-hidden border shadow-sm">
+                    {/* Consistent Cover Image Box */}
+                    <div className="w-40 h-56 bg-slate-100 rounded-md overflow-hidden border border-slate-200 shadow-sm">
                       {book.coverImageUrl ? (
                         <img
                           src={`${BASE_URL}${book.coverImageUrl}`}
@@ -62,9 +65,16 @@ export default function CategoryPage({ categories, books }: Props) {
                       )}
                     </div>
 
-                    <p className="mt-4 text-sm font-semibold text-center line-clamp-2">
-                      {book.title}
-                    </p>
+                    {/* Tight Information Stack */}
+                    <div className="mt-3">
+                      <p className="text-sm font-bold text-slate-800 line-clamp-2 leading-tight">
+                        {book.title}
+                      </p>
+                      {/* Fixed 4px distance from title to label */}
+                      <p className="mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-wide">
+                        Available to Rent
+                      </p>
+                    </div>
                   </div>
                 </Link>
               ))}
