@@ -54,7 +54,7 @@ export default function BookDetailsCard({ book }: Props) {
           </div>
 
           <div>
-            <span className="font-semibold">Price:</span> Rs. {book.price}
+            <span className="font-semibold">Price:</span> ${book.price}
           </div>
 
           <div>
