@@ -51,7 +51,7 @@ export default function CategoryPage({ categories, books }: Props) {
 
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10 bg-white">
+    <div className="max-w-7xl mx-auto px-6 pt-1 pb-10 bg-white">
       {categories.map((category) => {
         const categoryBooks = books.filter(
           (book) => book.genre?._id === category._id
