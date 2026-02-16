@@ -16,7 +16,7 @@ export class AdminUserController {
                 );
             }
             if (req.file) {
-                parsedData.data.imageUrl = `/uploads/${req.file.filename}`;
+                parsedData.data.imageUrl = `/uploads/images/${req.file.filename}`;
             }
             
             const newUser = await adminUserService.createUser(parsedData.data);

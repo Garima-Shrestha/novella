@@ -24,7 +24,7 @@ export class AdminBookController {
             }
 
             if (req.file) {
-                parsedData.data.coverImageUrl = `/uploads/${req.file.filename}`;
+                parsedData.data.coverImageUrl = `/uploads/images/${req.file.filename}`;
             }
 
             const newBook = await adminBookService.createBook(parsedData.data);
@@ -54,7 +54,7 @@ export class AdminBookController {
             }
 
             if (req.file) {
-                parsedData.data.coverImageUrl = `/uploads/${req.file.filename}`;
+                parsedData.data.coverImageUrl = `/uploads/images/${req.file.filename}`;
             }
 
             const updatedBook = await adminBookService.updateBook(bookId, parsedData.data);

@@ -83,7 +83,7 @@ export class AuthController {
                 );
             }
             if(req.file){
-                parsedData.data.imageUrl = `/uploads/${req.file.filename}`;
+                parsedData.data.imageUrl = `/uploads/images/${req.file.filename}`;
             }
             const updatedUser = await userService.updateUser(userId, parsedData.data);
             return res.status(200).json(
