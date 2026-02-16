@@ -1,7 +1,5 @@
 import express, { Application } from "express";
 import bodyParser from 'body-parser';
-import { PORT } from "./config";
-import { connectDatabase } from "./database/mongodb";
 import dotenv from "dotenv";
 import cors from 'cors';
 import path from 'path';
@@ -13,6 +11,8 @@ import bookRoutes from './routes/book.route';
 import adminBookRoutes from './routes/admin/book.route';
 import categoryRoutes from './routes/category.route';
 import adminCategoryRoutes from './routes/admin/category.route';
+import bookAccessRoutes from './routes/book-access.route';
+import adminBookAccessRoutes from './routes/admin/book-access.route'; 
 
 dotenv.config();
 console.log(process.env.PORT);
@@ -39,5 +39,7 @@ app.use('/api/books', bookRoutes);
 app.use('/api/admin/books', adminBookRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/admin/categories', adminCategoryRoutes);
+app.use('/api/book-access', bookAccessRoutes);
+app.use('/api/admin/book-access', adminBookAccessRoutes);
 
 export default app;
