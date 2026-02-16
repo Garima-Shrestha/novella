@@ -49,7 +49,10 @@ export const config = {
         '/login',
         '/register',
         '/landingpage',
+        '/homepage/:path*',
         '/forget-password',
-        '/reset-password/:path*'
+        '/reset-password/:path*',
+        '/category/:path*',
+        '/books-before-renting/:path*',
     ]
 }

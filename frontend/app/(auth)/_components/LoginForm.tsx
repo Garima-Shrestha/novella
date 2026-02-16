@@ -93,6 +93,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { handleLogin } from "@/lib/actions/auth-action";
 import { useAuth } from "@/context/AuthContext";
+import { useEffect } from "react";
+
 
 export default function LoginForm(){
     const router = useRouter();
@@ -123,19 +125,24 @@ export default function LoginForm(){
                 throw new Error(res.message || "Login failed");
             }
             // handle redirect (optional)
-            await checkAuth();
-            const loggedInUser = res.data;
-
-        // redirect immediately based on role from login response
-        if (loggedInUser.role === "admin") {
-            router.push("/admin/users");
-        } else {
-            router.push("/homepage");
-        }
+            await checkAuth();       
         }catch(err:Error | any){
             setError(err.message || "Login failed");
         }
     }
+
+    const { user, loading } = useAuth();
+    useEffect(() => {
+        if (!loading && user) {
+            if (user.role === "admin") {
+            router.replace("/admin/users");
+            } else {
+            router.replace("/homepage");
+            }
+        }
+    }, [loading, user, router]);
+
+
 
     return(
         <div className="h-screen w-screen overflow-hidden flex font-sans bg-white">
