@@ -1,6 +1,7 @@
 "use server";
 import { createCategory, fetchCategories, getCategoryById, updateCategory, deleteCategory } from "@/lib/api/admin/category";
 import { revalidatePath } from 'next/cache';
+import { cookies } from "next/headers";
 
 // Create a new category
 export const handleCreateCategory = async (data: any) => {
@@ -25,18 +26,27 @@ export const handleCreateCategory = async (data: any) => {
 
 // Fetch all categories
 export const handleGetAllCategories = async () => {
-    try {
-        const response = await fetchCategories();
-        if (response.success) {
-            return {
-                success: true,
-                categories: response.data
-            };
-        }
-        return { success: false, categories: [] };
-    } catch (err: Error | any) {
-        return { success: false, categories: [], message: err.message || 'Failed to fetch categories' };
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("auth_token")?.value;
+
+    if (!token) {
+      return { success: false, categories: [] };
     }
+
+    const response = await fetchCategories();
+
+    if (response.success) {
+      return {
+        success: true,
+        categories: response.data,
+      };
+    }
+
+    return { success: false, categories: [] };
+  } catch (err: any) {
+    return { success: false, categories: [], message: err.message || "Failed to fetch categories" };
+  }
 };
 
 // Fetch a single category by ID

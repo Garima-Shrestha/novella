@@ -2,6 +2,7 @@
 
 import { createBook, fetchBooks, getBookById, updateBook, deleteBook } from "@/lib/api/admin/books-before-renting";
 import { revalidatePath } from 'next/cache';
+import { cookies } from "next/headers";
 
 // Create a new book
 export const handleCreateBook = async (data: FormData) => {
@@ -26,29 +27,36 @@ export const handleCreateBook = async (data: FormData) => {
 
 // Fetch all books
 export async function handleGetAllBooks(params: {
-    page?: number;
-    size?: number;
-    searchTerm?: string;
+  page?: number;
+  size?: number;
+  searchTerm?: string;
 }) {
-    try {
-        const currentPage = params.page || 1;
-        const pageSize = params.size || 10;
-        const searchQuery = params.searchTerm || '';
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("auth_token")?.value;
 
-        const response = await fetchBooks(currentPage, pageSize, searchQuery);
-
-        if (response.success) {
-            return {
-                success: true,
-                books: response.data,
-                pagination: response.pagination
-            };
-        }
-
-        return { success: false, books: [], pagination: null };
-    } catch (err: Error | any) {
-        throw new Error(err.message || "Failed to get books");
+    if (!token) {
+      return { success: false, books: [], pagination: null };
     }
+
+    const currentPage = params.page || 1;
+    const pageSize = params.size || 10;
+    const searchQuery = params.searchTerm || "";
+
+    const response = await fetchBooks(currentPage, pageSize, searchQuery);
+
+    if (response.success) {
+      return {
+        success: true,
+        books: response.data,
+        pagination: response.pagination,
+      };
+    }
+
+    return { success: false, books: [], pagination: null };
+  } catch (err: any) {
+    throw new Error(err.message || "Failed to get books");
+  }
 }
 
 // Fetch a single book by ID

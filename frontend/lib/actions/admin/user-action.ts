@@ -1,6 +1,7 @@
 "use server";
 import { createUser, fetchUsers, getUserById, updateUser, deleteUser } from "@/lib/api/admin/user";
 import { revalidatePath } from 'next/cache';
+import { cookies } from "next/headers";
 
 export const handleCreateUser = async (data: FormData) => {
     try {
@@ -28,6 +29,13 @@ export async function handleGetAllUsers(params: {
     searchTerm?: string;
 }) {
     try {
+        const cookieStore = await cookies();  
+        const token = cookieStore.get("auth_token")?.value;
+
+        if (!token) {
+            return { success: false, users: [], pagination: null };
+        }
+
         const currentPage = params.page || 1;
         const pageSize = params.size || 10;
         const searchQuery = params.searchTerm || '';

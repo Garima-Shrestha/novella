@@ -1,5 +1,6 @@
 import { handleGetAllBooks } from "@/lib/actions/admin/books-before-renting-action";
 import BookTable from "./_components/BookTable";
+import { redirect } from "next/navigation";
 
 export default async function Page({
     searchParams
@@ -18,7 +19,7 @@ export default async function Page({
     });
 
     if (!response.success) {
-        throw new Error("Failed to load books");
+            redirect("/login");
     }
 
     return (

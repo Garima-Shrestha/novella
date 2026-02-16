@@ -1,5 +1,6 @@
 import { handleGetAllUsers } from "@/lib/actions/admin/user-action";
 import UserTable from "./_components/UserTable";
+import { redirect } from "next/navigation";
 
 export default async function Page({
     searchParams
@@ -18,7 +19,7 @@ export default async function Page({
     });
 
     if (!response.success) {
-        throw new Error("Failed to load users");
+        redirect("/login");
     }
 
     return (
