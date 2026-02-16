@@ -67,7 +67,7 @@ export class AdminUserController {
         try {
             const userId = req.params.id;
             if (req.file) {
-                req.body.imageUrl = `/uploads/${req.file.filename}`;
+                req.body.imageUrl = `/uploads/images/${req.file.filename}`;
             }
             const updatedUser = await adminUserService.updateOneUser(userId, req.body);
             return res.status(200).json({
