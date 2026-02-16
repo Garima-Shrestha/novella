@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 
 interface Category {
   _id: string;
@@ -25,6 +27,29 @@ interface Props {
 export default function CategoryPage({ categories, books }: Props) {
   const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
+  const searchParams = useSearchParams();
+
+  const slugify = (s: string) => s.trim().toLowerCase().replace(/\s+/g, "-");
+
+  useEffect(() => {
+    const targetName = searchParams.get("scrollTo");
+    if (!targetName) return;
+
+    const targetId = `cat-${slugify(targetName)}`;
+
+    const t = setTimeout(() => {
+      const el = document.getElementById(targetId);
+      if (el) {
+        const headerOffset = 110; 
+        const y = el.getBoundingClientRect().top + window.scrollY - headerOffset;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, 100);
+
+    return () => clearTimeout(t);
+  }, [searchParams]);
+
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 bg-white">
       {categories.map((category) => {
@@ -35,13 +60,11 @@ export default function CategoryPage({ categories, books }: Props) {
         // if (categoryBooks.length === 0) return null;
 
         return (
-          <section key={category._id} className="mb-10 last:mb-0">
-            {/* Standardized Genre Heading */}
+          <section key={category._id} id={`cat-${slugify(category.name)}`} className="mb-10 last:mb-0 scroll-mt-40">
             <h2 className="text-2xl font-bold text-slate-900 mb-4">
               {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
             </h2>
 
-            {/* Fixed horizontal and vertical gap between books */}
             <div className="flex flex-wrap gap-6">
               {categoryBooks.map((book) => (
                 <Link
@@ -50,7 +73,6 @@ export default function CategoryPage({ categories, books }: Props) {
                   className="shrink-0 block"
                 >
                   <div className="w-40">
-                    {/* Consistent Cover Image Box */}
                     <div className="w-40 h-56 bg-slate-100 rounded-md overflow-hidden border border-slate-200 shadow-sm">
                       {book.coverImageUrl ? (
                         <img
@@ -65,12 +87,10 @@ export default function CategoryPage({ categories, books }: Props) {
                       )}
                     </div>
 
-                    {/* Tight Information Stack */}
                     <div className="mt-3">
                       <p className="text-sm font-bold text-slate-800 line-clamp-2 leading-tight">
                         {book.title}
                       </p>
-                      {/* Fixed 4px distance from title to label */}
                       <p className="mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-wide">
                         Available to Rent
                       </p>

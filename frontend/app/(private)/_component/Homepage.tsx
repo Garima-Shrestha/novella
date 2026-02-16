@@ -33,12 +33,28 @@ export default function HomePage() {
 
       {/* 2. COMPACT CATEGORIES (Height Reduced) */}
       <section className="mb-12">
-        <h2 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-4">Categories</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-black uppercase tracking-widest text-slate-400">
+            Categories
+          </h2>
+
+          <Link 
+            href="/category"
+            className="text-sm font-bold text-blue-600 hover:underline"
+          >
+            See All
+          </Link>
+        </div>
+        
         <div className="flex gap-3">
           {categories.map((cat) => (
-            <button key={cat} className="px-6 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:border-blue-600 transition-all">
+            <Link
+              key={cat}
+              href={`/category?scrollTo=${encodeURIComponent(cat)}`}
+              className="px-6 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:border-blue-600 transition-all"
+            >
               {cat}
-            </button>
+            </Link>
           ))}
         </div>
       </section>
