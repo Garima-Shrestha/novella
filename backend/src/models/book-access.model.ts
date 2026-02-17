@@ -8,7 +8,10 @@ const BookAccessSchema: Schema = new Schema({
     expiresAt: { type: Date, required: false },
     isActive: { type: Boolean, default: true },
     pdfUrl: { type: String, required: false },
-    bookmarks: [{ type: String }],
+    bookmarks: [{
+        page: { type: Number, required: true },
+        text: { type: String, required: true }
+    }],
     quotes: [{
         page: { type: Number, required: true },
         text: { type: String, required: true }

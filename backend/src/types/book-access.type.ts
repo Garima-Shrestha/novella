@@ -5,9 +5,12 @@ export const BookAccessSchema = z.object({
     book: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid Book ID"), 
     rentedAt: z.preprocess(val => new Date(val as string), z.date()),
     expiresAt: z.preprocess(val => val ? new Date(val as string) : undefined, z.date().optional()), 
-    isActive: z.boolean().default(true), 
+    isActive: z.boolean(),
     pdfUrl: z.string().optional(), 
-    bookmarks: z.array(z.string()).optional(),
+    bookmarks: z.array(z.object({
+        page: z.number(),
+        text: z.string()
+    })).optional(),
     quotes: z.array(z.object({
         page: z.number(),
         text: z.string()
