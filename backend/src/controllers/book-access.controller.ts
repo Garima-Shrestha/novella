@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { BookAccessService } from "../services/book-access.service";
-import { UpdateBookAccessDto } from "../dtos/book-access.dto";
+import { UpdateBookAccessDto, UserRentBookDto } from "../dtos/book-access.dto";
 import z from "zod";
 
 let bookAccessService = new BookAccessService();
@@ -21,7 +21,12 @@ export class BookAccessController {
             if (!userId) return res.status(401).json({ success: false, message: "Unauthorized" });
             if (!bookId) return res.status(400).json({ success: false, message: "Book ID is required" });
 
-            const access = await bookAccessService.rentBook(userId, bookId);
+            const parsedData = UserRentBookDto.safeParse(req.body);
+            if (!parsedData.success) {
+                return res.status(400).json({ success: false, message: z.prettifyError(parsedData.error) });
+            }
+
+            const access = await bookAccessService.rentBook(userId, bookId, parsedData.data.expiresAt);
 
             return res.status(201).json({
                 success: true,
