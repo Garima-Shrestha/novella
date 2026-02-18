@@ -1,7 +1,9 @@
 import { AdminPDFRepository } from "../../repositories/admin-pdf.repository";
 import { HttpError } from "../../errors/http-error";
 import { CreateAdminPDFDto, UpdateAdminPDFDto } from "../../dtos/admin-pdf.dto";
+import { BookRepository } from "../../repositories/book.repository";
 
+const bookRepo = new BookRepository();
 let adminPDFRepo = new AdminPDFRepository();
 
 export class AdminPDFService {
@@ -11,6 +13,11 @@ export class AdminPDFService {
         const existing = await adminPDFRepo.getAdminPDFByBook(data.book);
         if (existing) {
             throw new HttpError(400, "This book already has a PDF assigned");
+        }
+
+        const book = await bookRepo.getBookById(data.book);
+        if (!book) {
+            throw new HttpError(404, "Book not found");
         }
 
         const pdf = await adminPDFRepo.createAdminPDF(data);
@@ -25,11 +32,11 @@ export class AdminPDFService {
     }
 
     // Get all PDFs with pagination
-    async getAllAdminPDFs(page?: string, size?: string) {
+    async getAllAdminPDFs(page?: string, size?: string, searchTerm?: string) {
         const currentPage = page ? parseInt(page, 10) : 1;
         const pageSize = size ? parseInt(size, 10) : 10;
 
-        const { adminPDFs, total } = await adminPDFRepo.getAllAdminPDFPaginated(currentPage, pageSize);
+        const { adminPDFs, total } = await adminPDFRepo.getAllAdminPDFPaginated(currentPage, pageSize, searchTerm);
 
         const pagination = {
             page: currentPage,

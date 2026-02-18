@@ -2,7 +2,9 @@ import z from "zod";
 import { AdminPDFSchema } from "../types/admin-pdf.type";
 
 export const CreateAdminPDFDto = AdminPDFSchema.pick({
-    book: true
+  book: true,
+  pdfUrl: true,
+  isActive: true,
 });
 export type CreateAdminPDFDto = z.infer<typeof CreateAdminPDFDto>;
 

@@ -10,9 +10,14 @@ export class AdminPDFController {
     // Create a new PDF
     async createAdminPDF(req: Request, res: Response) {
         try {
-            const parsedData = CreateAdminPDFDto.pick({ book: true }).safeParse(req.body);
-            if (!parsedData.success) {
-                return res.status(400).json({ success: false, message: z.prettifyError(parsedData.error) });
+            const bookOnlySchema = z.object({ book: CreateAdminPDFDto.shape.book });
+            const parsedBook = bookOnlySchema.safeParse(req.body);
+
+            if (!parsedBook.success) {
+                return res.status(400).json({
+                    success: false,
+                    message: z.prettifyError(parsedBook.error),
+                });
             }
 
             if (!req.file) {
@@ -20,22 +25,31 @@ export class AdminPDFController {
             }
 
             const pdfData = {
-                ...parsedData.data,
-                pdfUrl: `/uploads/pdfs/${req.file.filename}`, // multer path
-                isActive: true
+                book: parsedBook.data.book,
+                pdfUrl: `/uploads/pdfs/${req.file.filename}`,
+                isActive: true,
             };
 
-            const pdf = await adminPDFService.createAdminPDF(pdfData);
+            const parsedData = CreateAdminPDFDto.safeParse(pdfData);
+            if (!parsedData.success) {
+                return res.status(400).json({
+                    success: false,
+                    message: z.prettifyError(parsedData.error),
+                });
+            }
+
+            const pdf = await adminPDFService.createAdminPDF(parsedData.data);
 
             return res.status(201).json({
                 success: true,
                 data: pdf,
-                message: "PDF created successfully"
+                message: "PDF created successfully",
             });
+            
         } catch (error: any) {
             return res.status(error.statusCode || 500).json({
                 success: false,
-                message: error.message || "Internal Server Error"
+                message: error.message || "Internal Server Error",
             });
         }
     }
@@ -63,8 +77,8 @@ export class AdminPDFController {
     // Get all PDFs (paginated)
     async getAllAdminPDFs(req: Request, res: Response) {
         try {
-            const { page, size } = req.query as any;
-            const { adminPDFs, pagination } = await adminPDFService.getAllAdminPDFs(page, size);
+            const { page, size, searchTerm } = req.query as any;
+            const { adminPDFs, pagination } = await adminPDFService.getAllAdminPDFs(page, size, searchTerm);
 
             return res.status(200).json({
                 success: true,
