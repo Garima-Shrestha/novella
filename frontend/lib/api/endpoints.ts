@@ -38,6 +38,20 @@ export const API = {
             GET_ONE: (id: string) => `/api/admin/categories/${id}`,
             UPDATE: (id: string) => `/api/admin/categories/${id}`,
             DELETE: (id: string) => `/api/admin/categories/${id}`,
+        },
+        PDF: {
+            CREATE: '/api/admin/admin-pdf/',
+            GET_ALL: '/api/admin/admin-pdf/',
+            GET_ONE: (id: string) => `/api/admin/admin-pdf/${id}`,
+            UPDATE: (id: string) => `/api/admin/admin-pdf/${id}`,
+            DELETE: (id: string) => `/api/admin/admin-pdf/${id}`,
+        },
+        BOOK_ACCESS: {
+            GET_ALL: '/api/admin/book-access/',
+            GET_ONE: (id: string) => `/api/admin/book-access/${id}`, 
+            UPDATE: (id: string) => `/api/admin/book-access/${id}`, 
+            DELETE: (id: string) => `/api/admin/book-access/${id}`,
+            CREATE: '/api/admin/book-access/'                
         }
     }
 }
