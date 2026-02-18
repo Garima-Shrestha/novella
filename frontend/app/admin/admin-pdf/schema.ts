@@ -13,7 +13,7 @@ export const AdminPDFSchema = z.object({
         .refine((file) => ACCEPTED_FILE_TYPES.includes(file.type), {
             message: "Only PDF files are allowed",
         }),
-    isActive: z.boolean().optional().default(true),
+    isActive: z.boolean().default(true),
 });
 
 export type AdminPDFData = z.infer<typeof AdminPDFSchema>;

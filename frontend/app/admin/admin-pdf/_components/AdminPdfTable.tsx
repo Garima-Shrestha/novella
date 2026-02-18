@@ -214,16 +214,16 @@ export default function AdminPdfTable({
             </Link>
 
             <div className="flex items-center gap-2">
-            <input
+              <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={(e) => {
-                if (e.key === "Enter") handleSearchChange();
+                  if (e.key === "Enter") handleSearchChange();
                 }}
                 placeholder="Search PDFs..."
                 className="border border-gray-300 rounded px-3 py-2 text-sm bg-white text-gray-900 font-medium focus:ring-1 focus:ring-blue-500 outline-none"
-            />
+              />
             <button
                 onClick={handleSearchChange}
                 className="text-sm text-white bg-[#2563eb] px-4 py-2 rounded font-bold inline-block"
@@ -254,30 +254,49 @@ export default function AdminPdfTable({
             <tbody>
                 {pdfs.map((pdf) => (
                 <tr key={pdf._id} className="border-b border-gray-100">
-                    <td className="p-4 text-sm text-gray-800">{pdf.book.title}</td>
-                    <td className="p-4 text-sm text-blue-600 hover:underline">
+                  <td className="p-4 text-sm text-gray-800">
+                    {pdf.book.title}
+                  </td>
+
+                  <td className="p-4 text-sm text-blue-600 hover:underline">
                     <button
-                        onClick={() => handleViewPdf(`${BASE_URL}${pdf.pdfUrl}`)}
-                        className="text-blue-600 hover:underline"
+                      type="button"
+                      onClick={() => handleViewPdf(`${BASE_URL}${pdf.pdfUrl}`)}
+                      className="text-blue-600 hover:underline"
                     >
-                        View PDF
+                      View PDF
                     </button>
-                    </td>
-                    <td className="p-4 text-sm text-gray-800">{pdf.isActive ? "Yes" : "No"}</td>
-                    <td className="p-4 space-x-2">
-                    <Link
+                  </td>
+
+                  <td className="p-4 text-sm text-gray-800">
+                    {pdf.isActive ? "Yes" : "No"}
+                  </td>
+
+                  <td className="p-4 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/admin/admin-pdf/${pdf._id}`}
+                        className="text-xs text-blue-600 border border-blue-600 px-3 py-1.5 rounded font-bold uppercase hover:bg-blue-50"
+                      >
+                        View
+                      </Link>
+
+                      <Link
                         href={`/admin/admin-pdf/${pdf._id}/edit`}
                         className="text-xs text-white bg-blue-600 px-3 py-1.5 rounded font-bold uppercase hover:bg-blue-700"
-                    >
+                      >
                         Edit
-                    </Link>
-                    <button
+                      </Link>
+
+                      <button
+                        type="button"
                         onClick={() => setDeleteId(pdf._id)}
                         className="text-xs text-white bg-red-600 px-3 py-1.5 rounded font-bold uppercase hover:bg-red-700"
-                    >
+                      >
                         Delete
-                    </button>
-                    </td>
+                      </button>
+                    </div>
+                  </td>
                 </tr>
                 ))}
 
