@@ -109,7 +109,7 @@ export default function CategoryList({ categories }: { categories: CategoryItem[
     return (
       <span
         className={`inline-flex items-center gap-2 text-[11px] font-black px-3 py-1 rounded-full border whitespace-nowrap ${
-       active
+          active
             ? "bg-blue-50 text-blue-700 border border-blue-200"
             : "bg-red-50 text-red-700 border border-red-200"
         }`}
@@ -121,7 +121,7 @@ export default function CategoryList({ categories }: { categories: CategoryItem[
   };
 
   return (
-    <div className="p-6 bg-white min-h-screen w-full font-sans antialiased">
+    <div className="p-6 bg-slate-50 min-h-screen w-full font-sans antialiased">
       <ToastContainer containerId="admin-category" position="top-right" autoClose={3000} />
 
       <DeleteModal
@@ -132,18 +132,15 @@ export default function CategoryList({ categories }: { categories: CategoryItem[
         description="This category will be permanently removed. Are you sure you want to continue?"
       />
 
-      {/* Increased gap so Create and Table don't feel cramped when stacked */}
-      <div className="flex flex-col lg:grid lg:grid-cols-3 gap-10">
-        {/* Left: Create */}
-        <div className="lg:col-span-1">
+      <div className="max-w-7xl mx-auto flex flex-col gap-8">
+        <div className="max-w-7xl mx-auto w-full"> 
           <CategoryForm mode="create" onSuccess={() => router.refresh()} />
         </div>
 
-        {/* Right: List */}
-        <div className="lg:col-span-2">
+        {/* LIST PORTION */}
+        <div className="w-full">
           <div className="w-full overflow-x-auto border border-gray-200 rounded-xl shadow-sm bg-white">
-            {/* Header: better spacing & no edge hugging */}
-            <div className="px-6 py-5 border-b border-gray-200 bg-gray-50">
+            <div className="px-6 py-5 border-b border-gray-200 bg-gray-50/50">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <h1 className="text-xl font-black text-blue-900 leading-6">
