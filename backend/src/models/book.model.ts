@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from "mongoose";
 import { BookType } from "../types/book.type";
 
 const BookSchema: Schema = new Schema({
-    title: { type: String, required: true, unique: true, minLength: 1 },
+    title: { type: String, required: true, minLength: 1 },
     author: { type: String, required: true },
     genre: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     pages: { type: Number, required: true, min: 1 },

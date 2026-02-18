@@ -7,11 +7,6 @@ let bookRepository = new BookRepository();
 export class AdminBookService {
     // Create a new book
     async createBook(data: CreateBookDto) {
-        const existingBook = await bookRepository.getBookByTitle(data.title);
-        if (existingBook) {
-            throw new HttpError(409, "Book title already exists");
-        }
-
         const newBook = await bookRepository.createBook(data);
         return newBook;
     }
@@ -21,11 +16,6 @@ export class AdminBookService {
         const book = await bookRepository.getBookById(bookId);
         if (!book) {
             throw new HttpError(404, "Book not found");
-        }
-
-        if (data.title && data.title.toLowerCase() !== book.title.toLowerCase()) {
-            const existingTitle = await bookRepository.getBookByTitle(data.title);
-            if (existingTitle) throw new HttpError(409, "Book title already exists");
         }
 
         const updatedBook = await bookRepository.updateOneBook(bookId, data);
