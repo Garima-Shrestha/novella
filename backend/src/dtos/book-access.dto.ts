@@ -6,6 +6,7 @@ export const CreateBookAccessDto = BookAccessSchema.pick({
     book: true,
     rentedAt: true,
     expiresAt: true,
+    isActive: true,
     pdfUrl: true,
     bookmarks: true,
     quotes: true,

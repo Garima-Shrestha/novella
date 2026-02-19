@@ -9,6 +9,8 @@ export interface IAdminPDFRepository {
     updateOneAdminPDF(id: string, data: Partial<IAdminPDF>): Promise<IAdminPDF | null>;
     deleteOneAdminPDF(id: string): Promise<boolean | null>;
     getAllAdminPDFPaginated( page: number, size: number, searchTerm?: string ): Promise<{ adminPDFs: IAdminPDF[]; total: number }>
+
+    getActivePdfByBook(bookId: string): Promise<IAdminPDF | null>;
 }
 
 export class AdminPDFRepository implements IAdminPDFRepository {
@@ -65,5 +67,9 @@ export class AdminPDFRepository implements IAdminPDFRepository {
         ]);
 
         return { adminPDFs, total };
+    }
+
+    async getActivePdfByBook(bookId: string): Promise<IAdminPDF | null> {
+        return await AdminPDFModel.findOne({ book: bookId, isActive: true }).populate("book");
     }
 }

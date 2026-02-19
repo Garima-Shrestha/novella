@@ -1,9 +1,11 @@
 import { BookAccessRepository } from "../repositories/book-access.repository";
 import { BookRepository } from "../repositories/book.repository";
+import { AdminPDFRepository } from "../repositories/admin-pdf.repository";
 import { HttpError } from "../errors/http-error";
 
 let bookAccessRepo = new BookAccessRepository();
 let bookRepo = new BookRepository();
+let adminPdfRepo = new AdminPDFRepository();
 
 export class BookAccessService {
 
@@ -13,6 +15,10 @@ export class BookAccessService {
 
         const book = await bookRepo.getBookById(bookId);
         if (!book) throw new HttpError(404, "Book not found");
+
+        // fetch active pdf for this book
+        const activePdf = await adminPdfRepo.getActivePdfByBook(bookId);
+        if (!activePdf?.pdfUrl) throw new HttpError(404, "PDF not uploaded for this book yet");
 
         const existingAccess = await bookAccessRepo.getBookAccessByUserAndBook(userId, bookId);
         if (existingAccess && existingAccess.isActive && (!existingAccess.expiresAt || existingAccess.expiresAt > new Date())) {
@@ -27,6 +33,7 @@ export class BookAccessService {
             rentedAt: now,
             expiresAt: expiresAt,
             isActive: true,
+            pdfUrl: activePdf.pdfUrl,
         };
 
         const newAccess = await bookAccessRepo.createBookAccess(newAccessData);
@@ -54,27 +61,72 @@ export class BookAccessService {
     async getUserBookAccessByBook(userId: string, bookId: string) {
         const access = await bookAccessRepo.getBookAccessByUserAndBook(userId, bookId);
         if (!access || !access.isActive) throw new HttpError(404, "Book not rented or inactive");
+
+        if (!access.pdfUrl) {
+            const activePdf = await adminPdfRepo.getActivePdfByBook(bookId);
+            if (activePdf?.pdfUrl) {
+                access.pdfUrl = activePdf.pdfUrl;
+                await access.save();
+            }
+        }
+
         return access;
     }
 
-    // Update reading progress, bookmarks, quotes, last read
-    async updateBookAccess(userId: string, bookId: string, updates: any) {
-        const access = await bookAccessRepo.getBookAccessByUserAndBook(userId, bookId);
-        if (!access || !access.isActive) throw new HttpError(404, "Book not rented");
-
-        const updatedAccess = await bookAccessRepo.updateOneBookAccess(access._id.toString(), updates);
-        return updatedAccess;
+    // Add a bookmark
+    async addBookmark(userId: string, bookId: string, bookmark: any) {
+        const access = await bookAccessRepo.addBookmark(userId, bookId, bookmark);
+        if (!access) throw new HttpError(404, "Book not rented");
+        return access;
     }
 
-    // Return a rented book
-    async returnBook(userId: string, bookId: string) {
-        const access = await bookAccessRepo.getBookAccessByUserAndBook(userId, bookId);
-        if (!access || !access.isActive) throw new HttpError(404, "Book not rented");
-
-        const updatedAccess = await bookAccessRepo.updateOneBookAccess(access._id.toString(), {
-            isActive: false,
-            expiresAt: new Date(),
-        });
-        return updatedAccess;
+    // Remove a bookmark
+    async removeBookmark(userId: string, bookId: string, bookmarkIndex: number) {
+        const access = await bookAccessRepo.removeBookmark(userId, bookId, bookmarkIndex);
+        if (!access) throw new HttpError(404, "Book not rented");
+        return access;
     }
+
+    // Add a quote
+    async addQuote(userId: string, bookId: string, quote: any) {
+        const access = await bookAccessRepo.addQuote(userId, bookId, quote);
+        if (!access) throw new HttpError(404, "Book not rented");
+        return access;
+    }
+
+    // Remove a quote
+    async removeQuote(userId: string, bookId: string, quoteIndex: number) {
+        const access = await bookAccessRepo.removeQuote(userId, bookId, quoteIndex);
+        if (!access) throw new HttpError(404, "Book not rented");
+        return access;
+    }
+
+    // Update last position
+    async updateLastPosition(userId: string, bookId: string, lastPosition: any) {
+        const access = await bookAccessRepo.updateLastPosition(userId, bookId, lastPosition);
+        if (!access) throw new HttpError(404, "Book not rented");
+        return access;
+    }
+
+
+    // // Update reading progress, bookmarks, quotes, last read
+    // async updateBookAccess(userId: string, bookId: string, updates: any) {
+    //     const access = await bookAccessRepo.getBookAccessByUserAndBook(userId, bookId);
+    //     if (!access || !access.isActive) throw new HttpError(404, "Book not rented");
+
+    //     const updatedAccess = await bookAccessRepo.updateOneBookAccess(access._id.toString(), updates);
+    //     return updatedAccess;
+    // }
+
+    // // Return a rented book
+    // async returnBook(userId: string, bookId: string) {
+    //     const access = await bookAccessRepo.getBookAccessByUserAndBook(userId, bookId);
+    //     if (!access || !access.isActive) throw new HttpError(404, "Book not rented");
+
+    //     const updatedAccess = await bookAccessRepo.updateOneBookAccess(access._id.toString(), {
+    //         isActive: false,
+    //         expiresAt: new Date(),
+    //     });
+    //     return updatedAccess;
+    // }
 }

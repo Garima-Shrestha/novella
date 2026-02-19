@@ -10,7 +10,11 @@ router.use(authorizedMiddleware);
 router.post('/rent/:bookId', bookAccessController.rentBook);
 router.get('/', bookAccessController.getUserBooks);
 router.get('/:bookId', bookAccessController.getUserBookById);
-router.put('/:bookId', bookAccessController.updateBookAccess);
-router.post('/return/:bookId', bookAccessController.returnBook);
+
+router.post('/:bookId/bookmarks', bookAccessController.addBookmark);
+router.delete('/:bookId/bookmarks', bookAccessController.removeBookmark);
+router.post('/:bookId/quotes', bookAccessController.addQuote);
+router.delete('/:bookId/quotes', bookAccessController.removeQuote);
+router.patch('/:bookId/last-position', bookAccessController.updateLastPosition);
 
 export default router;

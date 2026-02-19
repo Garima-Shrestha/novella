@@ -1,5 +1,7 @@
 import { QueryFilter } from "mongoose";
 import { IBookAccess, BookAccessModel } from "../models/book-access.model";
+import { BookModel } from "../models/book.model";
+import { UserModel } from "../models/user.model";
 
 export interface IBookAccessRepository {
     createBookAccess(data: Partial<IBookAccess>): Promise<IBookAccess>;
@@ -10,8 +12,13 @@ export interface IBookAccessRepository {
     deleteOneBookAccess(id: string): Promise<boolean | null>;
 
     getAllBookAccessPaginated(page: number,size: number,searchTerm?: string): Promise<{ bookAccesses: IBookAccess[]; total: number }>;
-    getBookAccessesByUserPaginated(userId: string, page: number, size: number): Promise<{ bookAccesses: IBookAccess[]; total: number }>; // <- added
+    getBookAccessesByUserPaginated(userId: string, page: number, size: number): Promise<{ bookAccesses: IBookAccess[]; total: number }>;
 
+    addBookmark(userId: string, bookId: string, bookmark: any): Promise<IBookAccess | null>;
+    removeBookmark(userId: string, bookId: string, bookmarkIndex: number): Promise<IBookAccess | null>;
+    addQuote(userId: string, bookId: string, quote: any): Promise<IBookAccess | null>;
+    removeQuote(userId: string, bookId: string, quoteIndex: number): Promise<IBookAccess | null>;
+    updateLastPosition(userId: string, bookId: string, lastPosition: any): Promise<IBookAccess | null>;
 }
 
 export class BookAccessRepository implements IBookAccessRepository {
@@ -57,10 +64,23 @@ export class BookAccessRepository implements IBookAccessRepository {
         const filter: QueryFilter<IBookAccess> = {};
 
         if (searchTerm) {
-            filter.$or = [
-                { "book.title": { $regex: searchTerm, $options: "i" } },
-                { "user.username": { $regex: searchTerm, $options: "i" } }
-            ];
+            const [books, users] = await Promise.all([
+                BookModel.find({ title: { $regex: searchTerm, $options: "i" } }, { _id: 1 }),
+                UserModel.find({ username: { $regex: searchTerm, $options: "i" } }, { _id: 1 }),
+            ]);
+
+            const bookIds = books.map((b) => b._id);
+            const userIds = users.map((u) => u._id);
+
+            if (bookIds.length === 0 && userIds.length === 0) {
+                return { bookAccesses: [], total: 0 };
+            }
+
+            const orFilters: any[] = [];
+            if (bookIds.length) orFilters.push({ book: { $in: bookIds } });
+            if (userIds.length) orFilters.push({ user: { $in: userIds } });
+
+            filter.$or = orFilters;
         }
 
         const [bookAccesses, total] = await Promise.all([
@@ -92,5 +112,43 @@ export class BookAccessRepository implements IBookAccessRepository {
         ]);
 
         return { bookAccesses, total };
+    }
+
+    async addBookmark(userId: string, bookId: string, bookmark: any) {
+        return await BookAccessModel.findOneAndUpdate(
+            { user: userId, book: bookId },
+            { $push: { bookmarks: bookmark } },
+            { new: true }
+        ).populate("user").populate("book");
+    }
+
+    async removeBookmark(userId: string, bookId: string, bookmarkIndex: number) {
+        const access = await BookAccessModel.findOne({ user: userId, book: bookId });
+        if (!access) return null;
+        access.bookmarks?.splice(bookmarkIndex, 1);
+        return await access.save();
+    }
+
+    async addQuote(userId: string, bookId: string, quote: any) {
+        return await BookAccessModel.findOneAndUpdate(
+            { user: userId, book: bookId },
+            { $push: { quotes: quote } },
+            { new: true }
+        ).populate("user").populate("book");
+    }
+
+    async removeQuote(userId: string, bookId: string, quoteIndex: number) {
+        const access = await BookAccessModel.findOne({ user: userId, book: bookId });
+        if (!access) return null;
+        access.quotes?.splice(quoteIndex, 1);
+        return await access.save();
+    }
+
+    async updateLastPosition(userId: string, bookId: string, lastPosition: any) {
+        return await BookAccessModel.findOneAndUpdate(
+            { user: userId, book: bookId },
+            { $set: { lastPosition } },
+            { new: true }
+        ).populate("user").populate("book");
     }
 }
