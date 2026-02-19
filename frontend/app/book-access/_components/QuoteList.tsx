@@ -1,11 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
-import {
-  handleRemoveQuote,
-  handleFetchMyBookAccessByBook,
-} from "@/lib/actions/book-access-action";
+import { handleRemoveQuote } from "@/lib/actions/book-access-action";
 
 interface TextSelection {
   start: number;
@@ -18,37 +15,18 @@ interface Quote {
   selection?: TextSelection;
 }
 
-interface Props {
+export default function QuoteList({
+  bookId,
+  quotes,
+  setQuotes,
+  onNavigate,
+}: {
   bookId: string;
-  refreshKey?: number;
-  onNavigate?: (payload: {
-    kind: "quote";
-    page: number;
-    text: string;
-    selection?: TextSelection;
-  }) => void;
-}
-
-export default function QuoteList({ bookId, refreshKey = 0, onNavigate }: Props) {
-  const [quotes, setQuotes] = useState<Quote[]>([]);
-  const [loading, setLoading] = useState(false);
+  quotes: Quote[];
+  setQuotes: React.Dispatch<React.SetStateAction<Quote[]>>;
+  onNavigate?: (payload: { kind: "quote"; page: number; text: string; selection?: TextSelection }) => void;
+}) {
   const [removingIndex, setRemovingIndex] = useState<number | null>(null);
-
-  const fetchQuotes = async () => {
-    setLoading(true);
-    try {
-      const result = await handleFetchMyBookAccessByBook(bookId);
-      if (result.success && result.data?.quotes) {
-        setQuotes(result.data.quotes);
-      } else {
-        toast.error(result.message || "Failed to fetch quotes");
-      }
-    } catch (err: any) {
-      toast.error(err.message || "Failed to fetch quotes");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const removeQuote = async (index: number) => {
     setRemovingIndex(index);
@@ -67,11 +45,6 @@ export default function QuoteList({ bookId, refreshKey = 0, onNavigate }: Props)
     }
   };
 
-  useEffect(() => {
-    fetchQuotes();
-  }, [bookId, refreshKey]);
-
-  if (loading) return <div className="p-4 text-gray-500">Loading quotes...</div>;
   if (!quotes.length) return <div className="p-4 text-gray-500">No quotes yet.</div>;
 
   return (
@@ -79,25 +52,15 @@ export default function QuoteList({ bookId, refreshKey = 0, onNavigate }: Props)
       <h3 className="text-sm font-extrabold text-black mb-3">Quotes</h3>
       <ul className="space-y-2">
         {quotes.map((quote, idx) => (
-          <li
-            key={idx}
-            className="flex justify-between items-start p-2 border rounded hover:bg-gray-50"
-          >
+          <li key={idx} className="flex justify-between items-start p-2 border rounded hover:bg-gray-50">
             <button
               type="button"
-              onClick={() =>
-                onNavigate?.({
-                  kind: "quote",
-                  page: quote.page,
-                  text: quote.text,
-                  selection: quote.selection,
-                })
-              }
+              onClick={() => onNavigate?.({ kind: "quote", page: quote.page, text: quote.text, selection: quote.selection })}
               className="text-left flex-1 pr-3"
             >
               <div className="text-xs text-gray-600 font-bold">Page {quote.page}</div>
               <div className="text-gray-800 text-sm">{quote.text}</div>
-              {!quote.selection && (
+              {false && !quote.selection && (
                 <div className="mt-1 text-[11px] text-amber-700 font-bold">
                   (Old quote: no selection saved, highlight/jump uses text match)
                 </div>

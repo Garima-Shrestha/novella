@@ -1,11 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
-import {
-  handleRemoveBookmark,
-  handleFetchMyBookAccessByBook,
-} from "@/lib/actions/book-access-action";
+import { handleRemoveBookmark } from "@/lib/actions/book-access-action";
 
 interface TextSelection {
   start: number;
@@ -18,37 +15,18 @@ interface Bookmark {
   selection?: TextSelection;
 }
 
-interface Props {
+export default function BookmarkList({
+  bookId,
+  bookmarks,
+  setBookmarks,
+  onNavigate,
+}: {
   bookId: string;
-  refreshKey?: number;
-  onNavigate?: (payload: {
-    kind: "bookmark";
-    page: number;
-    text: string;
-    selection?: TextSelection;
-  }) => void;
-}
-
-export default function BookmarkList({ bookId, refreshKey = 0, onNavigate }: Props) {
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
-  const [loading, setLoading] = useState(false);
+  bookmarks: Bookmark[];
+  setBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>;
+  onNavigate?: (payload: { kind: "bookmark"; page: number; text: string; selection?: TextSelection }) => void;
+}) {
   const [removingIndex, setRemovingIndex] = useState<number | null>(null);
-
-  const fetchBookmarks = async () => {
-    setLoading(true);
-    try {
-      const result = await handleFetchMyBookAccessByBook(bookId);
-      if (result.success && result.data?.bookmarks) {
-        setBookmarks(result.data.bookmarks);
-      } else {
-        toast.error(result.message || "Failed to fetch bookmarks");
-      }
-    } catch (err: any) {
-      toast.error(err.message || "Failed to fetch bookmarks");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const removeBookmark = async (index: number) => {
     setRemovingIndex(index);
@@ -67,39 +45,25 @@ export default function BookmarkList({ bookId, refreshKey = 0, onNavigate }: Pro
     }
   };
 
-  useEffect(() => {
-    fetchBookmarks();
-  }, [bookId, refreshKey]);
-
-  if (loading) return <div className="p-4 text-gray-500">Loading bookmarks...</div>;
   if (!bookmarks.length) return <div className="p-4 text-gray-500">No bookmarks yet.</div>;
 
   return (
     <div className="p-2 bg-white rounded">
       <h3 className="text-sm font-extrabold text-black mb-3">Bookmarks</h3>
+
       <ul className="space-y-2">
-        {bookmarks.map((bookmark, idx) => (
-          <li
-            key={idx}
-            className="flex justify-between items-start p-2 border rounded hover:bg-gray-50"
-          >
+        {bookmarks.map((b, idx) => (
+          <li key={idx} className="flex justify-between items-start p-2 border rounded hover:bg-gray-50">
             <button
               type="button"
-              onClick={() =>
-                onNavigate?.({
-                  kind: "bookmark",
-                  page: bookmark.page,
-                  text: bookmark.text,
-                  selection: bookmark.selection,
-                })
-              }
+              onClick={() => onNavigate?.({ kind: "bookmark", page: b.page, text: b.text, selection: b.selection })}
               className="text-left flex-1 pr-3"
             >
-              <div className="text-xs text-gray-600 font-bold">Page {bookmark.page}</div>
-              <div className="text-gray-800 text-sm">
-                {bookmark.text}
-              </div>
-              {!bookmark.selection && (
+              <div className="text-xs text-gray-600 font-bold">Page {b.page}</div>
+              <div className="text-gray-800 text-sm">{b.text}</div>
+
+              {/* OPTIONAL: hide this message if you don’t want it */}
+              {false && !b.selection && (
                 <div className="mt-1 text-[11px] text-amber-700 font-bold">
                   (Old bookmark: no selection saved, jump uses text match)
                 </div>
@@ -109,13 +73,14 @@ export default function BookmarkList({ bookId, refreshKey = 0, onNavigate }: Pro
             <div className="flex gap-2">
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(bookmark.text);
+                  navigator.clipboard.writeText(b.text);
                   toast.success("Copied to clipboard!");
                 }}
                 className="px-2 py-1 text-xs bg-gray-300 text-gray-800 rounded hover:bg-gray-400 font-bold"
               >
                 Copy
               </button>
+
               <button
                 onClick={() => removeBookmark(idx)}
                 disabled={removingIndex === idx}

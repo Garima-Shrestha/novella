@@ -419,8 +419,7 @@ export default function PdfReader({
           q.selection.start,
           q.selection.end,
           "quote",
-          // Tailwind classes only
-          "bg-emerald-200/80 rounded-sm px-0.5"
+          "bg-emerald-200/45 rounded-sm px-0.5"
         );
       });
     },
@@ -483,7 +482,7 @@ export default function PdfReader({
             jumpRequest.selection.start,
             jumpRequest.selection.end,
             "temp",
-            "bg-yellow-200/90 rounded-sm px-0.5"
+            "bg-yellow-200/65 rounded-sm px-0.5"
           );
 
           // Scroll to the first temp highlight span

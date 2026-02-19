@@ -291,13 +291,15 @@ export default function BookAccessPage() {
               {tab === "bookmarks" ? (
                 <BookmarkList
                   bookId={bookId}
-                  refreshKey={refreshKey}
+                  bookmarks={bookmarks}
+                  setBookmarks={setBookmarks}
                   onNavigate={onNavigate}
                 />
               ) : (
                 <QuoteList
                   bookId={bookId}
-                  refreshKey={refreshKey}
+                  quotes={quotes}
+                  setQuotes={setQuotes}
                   onNavigate={onNavigate}
                 />
               )}
