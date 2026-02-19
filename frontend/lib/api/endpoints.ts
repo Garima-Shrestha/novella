@@ -17,6 +17,16 @@ export const API = {
         GET_ALL: '/api/books/',
         GET_ONE: (id: string) => `/api/books/${id}`,
     },
+    BOOK_ACCESS: {
+        RENT: (bookId: string) => `/api/book-access/rent/${bookId}`,
+        GET_ALL: "/api/book-access/",
+        GET_ONE: (bookId: string) => `/api/book-access/${bookId}`,
+        ADD_BOOKMARK: (bookId: string) => `/api/book-access/${bookId}/bookmarks`,
+        REMOVE_BOOKMARK: (bookId: string) => `/api/book-access/${bookId}/bookmarks`,
+        ADD_QUOTE: (bookId: string) => `/api/book-access/${bookId}/quotes`,
+        REMOVE_QUOTE: (bookId: string) => `/api/book-access/${bookId}/quotes`,
+        UPDATE_LAST_POSITION: (bookId: string) => `/api/book-access/${bookId}/last-position`,
+    },
     ADMIN:{
         USER:{
             CREATE: '/api/admin/users/',
