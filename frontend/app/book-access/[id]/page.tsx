@@ -71,7 +71,7 @@ export default function BookAccessPage() {
   const [pdfUrl, setPdfUrl] = useState("");
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [tab, setTab] = useState("bookmarks"); // no type
+  const [tab, setTab] = useState("bookmarks"); 
   const [refreshKey, setRefreshKey] = useState(0);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -89,6 +89,39 @@ export default function BookAccessPage() {
 
   const BASE_URL = "http://localhost:5050";
 
+  // useEffect(() => {
+  //   const fetchAccess = async () => {
+  //     try {
+  //       const result = await handleFetchMyBookAccessByBook(bookId);
+  //       if (!result.success) {
+  //         toast.error(result.message || "Failed to fetch book access");
+  //         return;
+  //       }
+
+  //       const data = result.data as BookAccessData;
+  //       setAccess(data);
+
+  //       setQuotes(data?.quotes || []);
+  //       setBookmarks(data?.bookmarks || []);
+
+  //       const url = data?.pdfUrl;
+  //       if (!url) {
+  //         toast.error("No pdfUrl found for this rented book.");
+  //         return;
+  //       }
+
+  //       setPdfUrl(url.startsWith("http") ? url : `${BASE_URL}${url}`);
+
+  //       setCurrentPage(data?.lastPosition?.page || 1);
+  //     } catch (err: any) {
+  //       toast.error(err.message || "Failed to fetch book");
+  //     }
+  //   };
+
+  //   if (bookId) fetchAccess();
+  // }, [bookId, refreshKey]);
+
+
   useEffect(() => {
     const fetchAccess = async () => {
       try {
@@ -99,6 +132,7 @@ export default function BookAccessPage() {
         }
 
         const data = result.data as BookAccessData;
+
         setAccess(data);
 
         setQuotes(data?.quotes || []);
@@ -111,7 +145,6 @@ export default function BookAccessPage() {
         }
 
         setPdfUrl(url.startsWith("http") ? url : `${BASE_URL}${url}`);
-
         setCurrentPage(data?.lastPosition?.page || 1);
       } catch (err: any) {
         toast.error(err.message || "Failed to fetch book");
@@ -119,7 +152,27 @@ export default function BookAccessPage() {
     };
 
     if (bookId) fetchAccess();
-  }, [bookId, refreshKey]);
+  }, [bookId]);
+
+
+  useEffect(() => {
+  const refreshListsOnly = async () => {
+    try {
+      const result = await handleFetchMyBookAccessByBook(bookId);
+      if (!result.success) return;
+
+      const data = result.data as BookAccessData;
+
+      setQuotes(data?.quotes || []);
+      setBookmarks(data?.bookmarks || []);
+    } catch {
+      // ignore
+    }
+  };
+
+  if (bookId && refreshKey > 0) refreshListsOnly();
+}, [bookId, refreshKey]);
+
 
   const isExpired = useMemo(() => {
     if (!access) return false;
@@ -179,7 +232,6 @@ export default function BookAccessPage() {
     text: string;
     selection?: TextSelection;
   }) => {
-    // close drawer then navigate in reader
     setDrawerOpen(false);
     setJumpRequest(payload);
   };

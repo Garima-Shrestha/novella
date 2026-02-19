@@ -62,7 +62,6 @@ export default function BookmarkList({
               <div className="text-xs text-gray-600 font-bold">Page {b.page}</div>
               <div className="text-gray-800 text-sm">{b.text}</div>
 
-              {/* OPTIONAL: hide this message if you don’t want it */}
               {false && !b.selection && (
                 <div className="mt-1 text-[11px] text-amber-700 font-bold">
                   (Old bookmark: no selection saved, jump uses text match)

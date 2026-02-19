@@ -13,7 +13,7 @@ interface BookmarkQuotePanelProps {
   bookId: string;
   currentPage: number;
   selectedText: string;
-  selectedSelection?: TextSelection; // ADDED
+  selectedSelection?: TextSelection; 
   enableBookmarks?: boolean;
   enableQuotes?: boolean;
   onAdded?: () => void;

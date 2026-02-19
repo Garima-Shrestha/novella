@@ -61,14 +61,10 @@ interface PdfReaderProps {
     selection?: TextSelection;
   }) => void;
 
-  // NEW: needed for persistent highlight + navigation
   quotes?: QuoteItem[];
   bookmarks?: BookmarkItem[];
-
-  // NEW: restore last position accurately
   initialLastPosition?: LastPosition;
 
-  // NEW: when user clicks a bookmark/quote from list
   jumpRequest?: {
     kind: "bookmark" | "quote";
     page: number;
@@ -76,7 +72,6 @@ interface PdfReaderProps {
     selection?: TextSelection;
   } | null;
 
-  // Parent can clear jump state after done (optional)
   onJumpHandled?: () => void;
 }
 
@@ -125,7 +120,6 @@ function applyHighlightByOffsets(
 ) {
   if (end <= start) return;
 
-  // Remove existing same highlight first (idempotent)
   unwrapHighlights(textLayerEl, dataKey);
 
   const walker = document.createTreeWalker(textLayerEl, NodeFilter.SHOW_TEXT);
@@ -146,7 +140,6 @@ function applyHighlightByOffsets(
       const localStart = overlapStart - nodeStart;
       const localEnd = overlapEnd - nodeStart;
 
-      // Split node into [before][mid][after]
       const mid = node.splitText(localStart);
       const after = mid.splitText(localEnd - localStart);
 
@@ -154,16 +147,14 @@ function applyHighlightByOffsets(
       wrapper.setAttribute("data-hl", dataKey);
       wrapper.className = className;
 
-      // Wrap mid
       const parent = mid.parentNode;
       if (parent) {
         parent.insertBefore(wrapper, mid);
         wrapper.appendChild(mid);
       }
 
-      // Continue from "after"
       node = after;
-      pos = nodeStart + localEnd; // moved up to overlapEnd within original
+      pos = nodeStart + localEnd; 
       continue;
     }
 
@@ -173,7 +164,6 @@ function applyHighlightByOffsets(
 }
 
 function captureOffsetsInTextLayer(range: Range, textLayerEl: HTMLElement) {
-  // Make a range from the start of textLayer -> selection start
   const pre = document.createRange();
   pre.selectNodeContents(textLayerEl);
   pre.setEnd(range.startContainer, range.startOffset);
@@ -227,7 +217,6 @@ export default function PdfReader({
   const MAX_ZOOM = 140;
   const ZOOM_DEBOUNCE_MS = 140;
 
-  // Debounce zoom
   useEffect(() => {
     const t = setTimeout(() => setAppliedZoom(zoom), ZOOM_DEBOUNCE_MS);
     return () => clearTimeout(t);
@@ -239,7 +228,6 @@ export default function PdfReader({
     setNumPages(pdf.numPages || 0);
   };
 
-  // Restore last position EXACTLY: zoom + scrollTop
   useEffect(() => {
     if (!enableLastPosition) return;
     if (isLocked) return;
@@ -249,8 +237,7 @@ export default function PdfReader({
     if (desiredZoom !== zoom) {
       setZoom(desiredZoom);
     }
-    // we apply scroll after pages exist + appliedZoom settled
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [enableLastPosition, isLocked, initialLastPosition]);
 
   useEffect(() => {
@@ -262,7 +249,6 @@ export default function PdfReader({
 
     const desiredOffset = initialLastPosition.offsetY || 0;
 
-    // Wait a tick after rendering to ensure height is correct
     const t = setTimeout(() => {
       if (!scrollRef.current) return;
       scrollRef.current.scrollTop = desiredOffset;
@@ -271,7 +257,6 @@ export default function PdfReader({
     return () => clearTimeout(t);
   }, [enableLastPosition, isLocked, initialLastPosition, numPages, appliedZoom]);
 
-  // Track page in view
   useEffect(() => {
     if (!scrollRef.current) return;
     if (!numPages) return;
@@ -307,10 +292,8 @@ export default function PdfReader({
 
     pageRefs.current.forEach((el) => el && observer.observe(el));
     return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [numPages]);
 
-  // Save last position (throttled) - uses scrollTop (offsetY)
   useEffect(() => {
     if (!enableLastPosition) return;
     if (isLocked) return;
@@ -347,7 +330,6 @@ export default function PdfReader({
     };
   }, [enableLastPosition, isLocked, bookId, currentPage, zoom]);
 
-  // Capture selection + ALSO capture selection offsets into the page textLayer
   const captureSelection = useCallback(() => {
     if (isLocked) {
       setSelectionUI({ text: "", rect: null, selection: undefined });
@@ -368,7 +350,6 @@ export default function PdfReader({
     const rect = range.getBoundingClientRect();
     const okRect = rect && rect.width > 2 && rect.height > 2;
 
-    // Try capture offsets from current page text layer
     let selection: TextSelection | undefined = undefined;
     const textLayerEl = getTextLayerEl(currentPage);
     if (textLayerEl && textLayerEl.contains(range.startContainer) && textLayerEl.contains(range.endContainer)) {
@@ -401,16 +382,13 @@ export default function PdfReader({
     };
   }, [captureSelection]);
 
-  // Persistent quote highlights: apply whenever a page is in DOM and text layer exists
   const applyPersistentHighlightsForPage = useCallback(
     (page: number) => {
       const textLayerEl = getTextLayerEl(page);
       if (!textLayerEl) return;
 
-      // Clear old quote highlights
       unwrapHighlights(textLayerEl, "quote");
 
-      // Apply quote highlights for this page
       const pageQuotes = quotes.filter((q) => q.page === page && q.selection);
       pageQuotes.forEach((q) => {
         if (!q.selection) return;
@@ -426,10 +404,8 @@ export default function PdfReader({
     [quotes]
   );
 
-  // After render tick, apply highlights to pages near current view
   useEffect(() => {
     if (!numPages) return;
-    // apply for current and adjacent pages for smoothness
     const pages = [currentPage - 1, currentPage, currentPage + 1].filter(
       (p) => p >= 1 && p <= numPages
     );
@@ -441,7 +417,6 @@ export default function PdfReader({
     return () => clearTimeout(t);
   }, [numPages, currentPage, appliedZoom, applyPersistentHighlightsForPage]);
 
-  // Jump-to handling: scroll to page, then scroll into selection and highlight
   useEffect(() => {
     if (!jumpRequest) return;
     if (!numPages) return;
@@ -449,13 +424,11 @@ export default function PdfReader({
     const targetPage = jumpRequest.page;
 
     const doJump = async () => {
-      // 1) scroll to page container
       const pageEl = pageRefs.current[targetPage - 1];
       if (pageEl) {
         pageEl.scrollIntoView({ block: "start", behavior: "smooth" });
       }
 
-      // 2) wait for textLayer to exist, then highlight + scroll to exact selection
       const tries = 24;
       let i = 0;
 
@@ -470,11 +443,13 @@ export default function PdfReader({
           return;
         }
 
-        // Always re-apply persistent highlights on that page (quotes)
         applyPersistentHighlightsForPage(targetPage);
-
-        // TEMP highlight for bookmark or quote-click (bookmark = few seconds, quote = few seconds extra emphasis)
         unwrapHighlights(textLayerEl, "temp");
+
+        const tempClass =
+          jumpRequest.kind === "quote"
+            ? "bg-emerald-200/45 rounded-sm px-0.5"  
+            : "bg-yellow-200/65 rounded-sm px-0.5";  
 
         if (jumpRequest.selection) {
           applyHighlightByOffsets(
@@ -482,28 +457,25 @@ export default function PdfReader({
             jumpRequest.selection.start,
             jumpRequest.selection.end,
             "temp",
-            "bg-yellow-200/65 rounded-sm px-0.5"
+            tempClass
           );
 
-          // Scroll to the first temp highlight span
           const first = textLayerEl.querySelector('[data-hl="temp"]') as HTMLElement | null;
           if (first) {
             first.scrollIntoView({ block: "center", behavior: "smooth" });
           }
         } else {
-          // Fallback: find the text
           const needle = (jumpRequest.text || "").trim();
           if (needle) {
             const full = textLayerEl.innerText || "";
             const idx = full.indexOf(needle);
             if (idx >= 0) {
-              // approximate highlight by offsets in textLayer text
               applyHighlightByOffsets(
                 textLayerEl,
                 idx,
                 idx + needle.length,
                 "temp",
-                "bg-yellow-200/90 rounded-sm px-0.5"
+                tempClass
               );
               const first = textLayerEl.querySelector('[data-hl="temp"]') as HTMLElement | null;
               if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
@@ -513,7 +485,6 @@ export default function PdfReader({
 
         clearInterval(timer);
 
-        // bookmark highlight should disappear after few seconds
         const ms = jumpRequest.kind === "bookmark" ? 2500 : 1800;
         setTimeout(() => {
           const tl = getTextLayerEl(targetPage);
@@ -539,7 +510,6 @@ export default function PdfReader({
 
   return (
     <div className="relative w-full h-full bg-white overflow-hidden">
-      {/* Top Toolbar */}
       <div className="absolute top-0 left-0 right-0 z-[999]">
         <div className="mx-2 mt-2 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm">
           <div className="flex items-center justify-between gap-2">
@@ -584,7 +554,6 @@ export default function PdfReader({
         </div>
       </div>
 
-      {/* Floating selection tooltip */}
       {selectionUI.rect &&
         !isLocked &&
         selectedText &&
@@ -633,7 +602,6 @@ export default function PdfReader({
           </div>
         )}
 
-      {/* PDF container */}
       <div
         ref={scrollRef}
         className="absolute inset-0 pt-16 overflow-auto"
@@ -673,7 +641,6 @@ export default function PdfReader({
         </div>
       </div>
 
-      {/* Lock overlay */}
       {isLocked && (
         <div className="absolute inset-0 z-[998] flex items-center justify-center bg-white/80">
           <div className="max-w-md mx-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-lg text-center">
