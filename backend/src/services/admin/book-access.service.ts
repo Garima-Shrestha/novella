@@ -7,13 +7,21 @@ let bookAccessRepo = new BookAccessRepository();
 export class AdminBookAccessService {
     // Create Book Access
     async createBookAccess(data: any) {
-        const existingAccess = await bookAccessRepo.getActiveAccessByBook(data.book);
-        if (existingAccess) {
-            throw new HttpError(400, "This book already has an active access");
+        const existing = await bookAccessRepo.getBookAccessByUserAndBook(data.user, data.book);
+
+        if (existing && existing.isActive && (!existing.expiresAt || existing.expiresAt > new Date())) {
+            throw new HttpError(400, `This user already has access to this book until ${existing.expiresAt}`);
         }
 
-        const newAccess = await bookAccessRepo.createBookAccess(data);
-        return newAccess;
+        try {
+            const newAccess = await bookAccessRepo.createBookAccess(data);
+            return newAccess;
+        } catch (err: any) {
+            if (err?.code === 11000) {
+                throw new HttpError(409, "This user already has an active access for this book");
+            }
+            throw err;
+        }
     }
 
     // Get all book accesses
