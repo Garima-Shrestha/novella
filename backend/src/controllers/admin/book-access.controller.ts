@@ -81,9 +81,10 @@ export class AdminBookAccessController {
                 return res.status(400).json({ success: false, message: z.prettifyError(parsedData.error) });
             }
 
-            const pdfUrl = req.file ? `/uploads/pdfs/${req.file.filename}` : parsedData.data.pdfUrl;
+            // const pdfUrl = req.file ? `/uploads/pdfs/${req.file.filename}` : parsedData.data.pdfUrl;
+            // const updatedAccess = await adminBookAccessService.updateBookAccess(accessId, { ...parsedData.data, pdfUrl });
 
-            const updatedAccess = await adminBookAccessService.updateBookAccess(accessId, { ...parsedData.data, pdfUrl });
+            const updatedAccess = await adminBookAccessService.updateBookAccess(accessId, parsedData.data);
 
             return res.status(200).json({
                 success: true,

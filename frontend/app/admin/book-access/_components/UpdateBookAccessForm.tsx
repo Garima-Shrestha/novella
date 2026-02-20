@@ -48,9 +48,6 @@ export default function UpdateBookAccessForm({ access }: { access: any }) {
   const [oldAccess, setOldAccess] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [viewPdfUrl, setViewPdfUrl] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -74,9 +71,6 @@ export default function UpdateBookAccessForm({ access }: { access: any }) {
 
     setValue("expiresAt", (expiresAt || "") as any);
     setValue("isActive", access.isActive ?? true);
-
-    setPdfFile(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
   }, [access, setValue]);
 
   const handleViewPdf = (pdfUrl: string) => {
@@ -98,7 +92,6 @@ export default function UpdateBookAccessForm({ access }: { access: any }) {
     const newExpires = (data.expiresAt || "").trim();
     const newIsActive = data.isActive;
 
-    // extra guard: block past date even if user hacks input
     if (newExpires) {
       const picked = new Date(`${newExpires}T00:00:00`);
       const today = new Date();
@@ -111,9 +104,7 @@ export default function UpdateBookAccessForm({ access }: { access: any }) {
 
     const expiresChanged = newExpires !== (oldAccess.expiresAt || "");
     const activeChanged = (newIsActive ?? true) !== (oldAccess.isActive ?? true);
-    const pdfChanged = !!pdfFile;
-
-    const isChanged = expiresChanged || activeChanged || pdfChanged;
+    const isChanged = expiresChanged || activeChanged;
 
     if (!isChanged) {
       toast.info("No changes detected", { containerId: "admin-book-access-edit" });
@@ -128,10 +119,6 @@ export default function UpdateBookAccessForm({ access }: { access: any }) {
 
     if (activeChanged) {
       formData.append("isActive", String(newIsActive));
-    }
-
-    if (pdfChanged && pdfFile) {
-      formData.append("pdfUrl", pdfFile);
     }
 
     startTransition(async () => {
@@ -230,21 +217,6 @@ export default function UpdateBookAccessForm({ access }: { access: any }) {
             ) : (
               <p className="text-sm text-slate-600 font-semibold">No PDF</p>
             )}
-          </div>
-
-          {/* Replace PDF */}
-          <div className="space-y-2 rounded-lg border border-slate-200 p-4">
-            <p className="text-[11px] font-black text-slate-700 uppercase tracking-wide">
-              Replace PDF (Optional)
-            </p>
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="application/pdf"
-              className="block w-full text-sm text-slate-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-[11px] file:font-black file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
-              onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
-            />
           </div>
 
           {error && (

@@ -12,7 +12,8 @@ router.use(adminOnlyMiddleware);
 router.post('/', pdfUpload.single("pdfUrl"), adminBookAccessController.createBookAccess);
 router.get('/', adminBookAccessController.getAllBookAccesses);
 router.get('/:id', adminBookAccessController.getBookAccessById);
-router.put('/:id', pdfUpload.single("pdfUrl"), adminBookAccessController.updateBookAccess);
+// router.put('/:id', pdfUpload.single("pdfUrl"), adminBookAccessController.updateBookAccess);
+router.put('/:id', adminBookAccessController.updateBookAccess)
 router.delete('/:id', adminBookAccessController.deleteBookAccess);
 
 export default router;
