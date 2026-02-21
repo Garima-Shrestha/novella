@@ -10,6 +10,7 @@ const NAV_LINKS = [
     { href: "/homepage", label: "Home" },
     { href: "/library", label: "My Library" },
     { href: "/history", label: "History" },
+    { href: "/user/myquote", label: "My Quotes" },
 ];
 
 export default function Header() { 
