@@ -19,6 +19,8 @@ export interface IBookAccessRepository {
     addQuote(userId: string, bookId: string, quote: any): Promise<IBookAccess | null>;
     removeQuote(userId: string, bookId: string, quoteIndex: number): Promise<IBookAccess | null>;
     updateLastPosition(userId: string, bookId: string, lastPosition: any): Promise<IBookAccess | null>;
+    
+    renewBookAccess(id: string, data: Partial<IBookAccess>): Promise<IBookAccess | null>;
 }
 
 export class BookAccessRepository implements IBookAccessRepository {
@@ -150,5 +152,11 @@ export class BookAccessRepository implements IBookAccessRepository {
             { $set: { lastPosition } },
             { new: true }
         ).populate("user").populate("book");
+    }
+
+    async renewBookAccess(id: string, data: Partial<IBookAccess>): Promise<IBookAccess | null> {
+        return await BookAccessModel.findByIdAndUpdate(id, data, { new: true })
+            .populate("user")
+            .populate("book");
     }
 }

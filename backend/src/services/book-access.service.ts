@@ -20,12 +20,12 @@ export class BookAccessService {
         const activePdf = await adminPdfRepo.getActivePdfByBook(bookId);
         if (!activePdf?.pdfUrl) throw new HttpError(404, "PDF not uploaded for this book yet");
 
+        const now = new Date();
+
         const existingAccess = await bookAccessRepo.getBookAccessByUserAndBook(userId, bookId);
-        if (existingAccess && existingAccess.isActive && (!existingAccess.expiresAt || existingAccess.expiresAt > new Date())) {
+        if (existingAccess && existingAccess.isActive && (!existingAccess.expiresAt || existingAccess.expiresAt > now)) {
             throw new HttpError(400, `Book already rented until ${existingAccess.expiresAt}`);
         }
-
-        const now = new Date();
 
         const newAccessData = {
             user: userId,
@@ -35,6 +35,12 @@ export class BookAccessService {
             isActive: true,
             pdfUrl: activePdf.pdfUrl,
         };
+
+        if (existingAccess) {
+            const renewed = await bookAccessRepo.renewBookAccess(existingAccess._id.toString(), newAccessData);
+            if (!renewed) throw new HttpError(500, "Failed to renew book access");
+            return renewed;
+        }
 
         const newAccess = await bookAccessRepo.createBookAccess(newAccessData);
         return newAccess;
