@@ -231,7 +231,7 @@ export default function PdfReader({
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<Array<HTMLDivElement | null>>([]);
-  const restoringRef = useRef(true);
+  const restoringRef = useRef(false);
   const restoreTimerRef = useRef<number | null>(null);
 
   const BASE_SCALE = 0.85;
