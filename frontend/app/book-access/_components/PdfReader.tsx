@@ -178,6 +178,27 @@ function captureOffsetsInTextLayer(range: Range, textLayerEl: HTMLElement) {
   return undefined;
 }
 
+function normalizeZoomFromServer(
+  raw: number | undefined,
+  minZoom: number,
+  maxZoom: number,
+  step: number
+) {
+  if (raw == null || Number.isNaN(raw)) return 100;
+
+  let z = Number(raw);
+
+  if (z > 0 && z <= 3) {
+    z = z * 100;
+  }
+
+  z = Math.max(minZoom, Math.min(maxZoom, z));
+  z = Math.round(z / step) * step;
+  z = Math.max(minZoom, Math.min(maxZoom, z));
+
+  return z;
+}
+
 export default function PdfReader({
   pdfUrl,
   bookId,
@@ -210,6 +231,8 @@ export default function PdfReader({
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const restoringRef = useRef(true);
+  const restoreTimerRef = useRef<number | null>(null);
 
   const BASE_SCALE = 0.85;
   const ZOOM_STEP = 5;
@@ -233,11 +256,16 @@ export default function PdfReader({
     if (isLocked) return;
     if (!initialLastPosition) return;
 
-    const desiredZoom = initialLastPosition.zoom || 100;
+    const desiredZoom = normalizeZoomFromServer(
+      initialLastPosition.zoom,
+      MIN_ZOOM,
+      MAX_ZOOM,
+      ZOOM_STEP
+    );
+
     if (desiredZoom !== zoom) {
       setZoom(desiredZoom);
     }
-
   }, [enableLastPosition, isLocked, initialLastPosition]);
 
   useEffect(() => {
@@ -247,14 +275,49 @@ export default function PdfReader({
     if (!scrollRef.current) return;
     if (!numPages) return;
 
-    const desiredOffset = initialLastPosition.offsetY || 0;
+    restoringRef.current = true;
+    if (restoreTimerRef.current) window.clearTimeout(restoreTimerRef.current);
 
-    const t = setTimeout(() => {
+    const el = scrollRef.current;
+
+    const t = window.setTimeout(() => {
       if (!scrollRef.current) return;
-      scrollRef.current.scrollTop = desiredOffset;
-    }, 180);
+      const targetPage = Math.max(
+        1,
+        Math.min(numPages, Number(initialLastPosition.page ?? 1))
+      );
 
-    return () => clearTimeout(t);
+      const pageEl = pageRefs.current[targetPage - 1];
+      if (pageEl) {
+        pageEl.scrollIntoView({ block: "start" });
+      }
+
+      const raw = Number(initialLastPosition.offsetY ?? 0);
+      const maxScroll = Math.max(1, el.scrollHeight - el.clientHeight);
+
+      window.setTimeout(() => {
+        if (!scrollRef.current) return;
+
+        const targetPage = Math.max(
+          1,
+          Math.min(numPages, Number(initialLastPosition.page ?? 1))
+        );
+
+        const pageEl = pageRefs.current[targetPage - 1];
+        if (pageEl) {
+          pageEl.scrollIntoView({ block: "start" });
+        }
+
+        restoreTimerRef.current = window.setTimeout(() => {
+          restoringRef.current = false;
+        }, 700);
+      }, 80);
+    }, 220);
+
+    return () => {
+      window.clearTimeout(t);
+      if (restoreTimerRef.current) window.clearTimeout(restoreTimerRef.current);
+    };
   }, [enableLastPosition, isLocked, initialLastPosition, numPages, appliedZoom]);
 
   useEffect(() => {
@@ -305,6 +368,7 @@ export default function PdfReader({
     let lastSent = 0;
 
     const onScroll = () => {
+      if (restoringRef.current) return;
       const now = Date.now();
       if (now - lastSent < 500) return;
       lastSent = now;
@@ -312,9 +376,11 @@ export default function PdfReader({
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(async () => {
         try {
+          const maxScroll = Math.max(1, el.scrollHeight - el.clientHeight);
+          const progress = Math.min(1, Math.max(0, el.scrollTop / maxScroll));
           await updateLastPosition(bookId, {
             page: currentPage,
-            offsetY: el.scrollTop,
+            offsetY: progress, 
             zoom: zoom,
           });
         } catch {
