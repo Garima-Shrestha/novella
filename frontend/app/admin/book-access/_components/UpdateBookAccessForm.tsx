@@ -111,19 +111,19 @@ export default function UpdateBookAccessForm({ access }: { access: any }) {
       return;
     }
 
-    const formData = new FormData();
+    const payload: any = {};
 
     if (expiresChanged && newExpires) {
-      formData.append("expiresAt", endOfDayISO(newExpires));
+      payload.expiresAt = endOfDayISO(newExpires);
     }
 
     if (activeChanged) {
-      formData.append("isActive", String(newIsActive));
+      payload.isActive = !!newIsActive;
     }
 
     startTransition(async () => {
       try {
-        const res = await updateBookAccess(access._id, formData);
+        const res = await updateBookAccess(access._id, payload);
 
         if (!res?.success) {
           toast.error(res?.message || "Update failed", { containerId: "admin-book-access-edit" });
@@ -191,7 +191,6 @@ export default function UpdateBookAccessForm({ access }: { access: any }) {
             <input
               id="isActive"
               type="checkbox"
-              defaultChecked
               {...register("isActive")}
               className="h-4 w-4 rounded border-slate-300 text-[#2563eb] focus:ring-0 cursor-pointer"
             />

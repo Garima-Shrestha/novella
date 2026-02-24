@@ -39,19 +39,17 @@ export const getBookAccessById = async (id: string) => {
 };
 
 // Update a book access by ID
-export const updateBookAccess = async (id: string, formData: FormData) => {
+export const updateBookAccess = async (id: string, data: any) => {
     try {
-        const response = await axios.put(API.ADMIN.BOOK_ACCESS.UPDATE(id), formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-        });
+        const response = await axios.put(API.ADMIN.BOOK_ACCESS.UPDATE(id), data);
         return response.data;
     } catch (err: any) {
         return {
-            success: false,
-            message: err.response?.data?.message || err.message || "Update book access failed",
+        success: false,
+        message: err.response?.data?.message || err.message || "Update book access failed",
         };
     }
-};
+    };
 
 // Delete a book access by ID
 export const deleteBookAccess = async (id: string) => {
