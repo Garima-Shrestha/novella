@@ -51,12 +51,10 @@ function parseDateMs(v?: string) {
 function computeStatus(access: BookAccess) {
   const now = Date.now();
   const expMs = parseDateMs(access.expiresAt);
-
   const expiredByDate = !!expMs && expMs < now;
-  const inactive = access.isActive === false;
 
-  if (inactive) return "Inactive";
   if (expiredByDate) return "Expired";
+  if (access.isActive === false) return "Inactive";
   return "Active";
 }
 
@@ -119,57 +117,11 @@ export default function BookAccessTable({
   };
 
   const displayRows = useMemo(() => {
-    const map = new Map<string, BookAccess[]>();
-
-    for (const a of accesses) {
-      const userId = a.user?._id || "unknown_user";
-      const bookId = a.book?._id || "unknown_book";
-      const key = `${userId}:${bookId}`;
-      const arr = map.get(key) || [];
-      arr.push(a);
-      map.set(key, arr);
-    }
-
-    const rows: BookAccess[] = [];
-
-    for (const [, arr] of map) {
-      const active = arr.find((x) => x.isActive === true);
-      if (active) {
-        rows.push(active);
-        continue;
-      }
-
-      const sorted = [...arr].sort((a, b) => {
-        const ar = parseDateMs(a.rentedAt);
-        const br = parseDateMs(b.rentedAt);
-        if (br !== ar) return br - ar;
-
-        const ae = parseDateMs(a.expiresAt);
-        const be = parseDateMs(b.expiresAt);
-        return be - ae;
-      });
-
-      rows.push(sorted[0]);
-    }
-
-    // rows.sort((a, b) => {
-    //   const sa = computeStatus(a);
-    //   const sb = computeStatus(b);
-    //   if (sa !== sb) return sa === "Active" ? -1 : 1;
-
-    //   const ta = (a.book?.title || "").toLowerCase();
-    //   const tb = (b.book?.title || "").toLowerCase();
-    //   return ta.localeCompare(tb);
-    // });
-
-    rows.sort((a, b) => {
+    return [...accesses].sort((a, b) => {
       const ar = parseDateMs(a.rentedAt);
       const br = parseDateMs(b.rentedAt);
-      if (ar !== br) return ar - br; 
-      return (a._id || "").localeCompare(b._id || "");
+      return br - ar; 
     });
-
-    return rows;
   }, [accesses]);
 
   const makePagination = (): React.ReactElement[] => {
