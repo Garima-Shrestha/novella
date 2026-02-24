@@ -34,8 +34,8 @@ export class AdminBookAccessService {
             expiresAt: data.expiresAt,
             isActive: true,
             pdfUrl: activePdf.pdfUrl,
-            bookmarks: data.bookmarks ?? [],
-            quotes: data.quotes ?? [],
+            bookmarks: data.bookmarks ?? (existingActive?.bookmarks ?? []),
+            quotes: data.quotes ?? (existingActive?.quotes ?? []),
             lastPosition: data.lastPosition,
         };
 
