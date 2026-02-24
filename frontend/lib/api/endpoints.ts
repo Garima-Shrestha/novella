@@ -27,6 +27,7 @@ export const API = {
         REMOVE_QUOTE: (bookId: string) => `/api/book-access/${bookId}/quotes`,
         UPDATE_LAST_POSITION: (bookId: string) => `/api/book-access/${bookId}/last-position`,
     },
+    MY_LIBRARY: "/api/book-access/my-library",
     ADMIN:{
         USER:{
             CREATE: '/api/admin/users/',
