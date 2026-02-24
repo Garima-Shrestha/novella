@@ -120,10 +120,12 @@ export default function MyLibraryList({
               : "";
 
             const isExpired = !!item?.isExpired;
+            const isInactive = !!item?.isInactive;
+            const blocked = isExpired || isInactive; 
 
-            const cardHref = isExpired
-              ? `/books-before-renting/${item.bookId}`
-              : `/book-access/${item.bookId}`;
+            const cardHref = blocked
+            ? `/books-before-renting/${item.bookId}`
+            : `/book-access/${item.bookId}`;
 
             const progress = Math.max(
               0,
@@ -140,7 +142,7 @@ export default function MyLibraryList({
                   prefetch={false}
                   className="block"
                   onClick={() => {
-                    if (!isExpired) setRefreshFlag();
+                    if (!blocked) setRefreshFlag();
                   }}
                 >
                   <div className="flex gap-4">
@@ -176,13 +178,17 @@ export default function MyLibraryList({
                         </div>
 
                         <div className="shrink-0">
-                          {!isExpired ? (
-                            <span className="text-[10px] font-black px-3 py-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700">
-                              Active
-                            </span>
-                          ) : (
+                          {isExpired ? (
                             <span className="text-[10px] font-black px-3 py-1 rounded-full border border-red-200 bg-red-50 text-red-700">
-                              Expired
+                                Expired
+                            </span>
+                            ) : isInactive ? (
+                            <span className="text-[10px] font-black px-3 py-1 rounded-full border border-amber-200 bg-amber-50 text-amber-700">
+                                Inactive
+                            </span>
+                            ) : (
+                            <span className="text-[10px] font-black px-3 py-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700">
+                                Active
                             </span>
                           )}
                         </div>
@@ -215,7 +221,7 @@ export default function MyLibraryList({
                   </div>
                 </Link>
 
-                {isExpired && (
+                {item?.canReRent && (
                   <div className="mt-2 flex justify-end">
                     <Link
                       href={`/books-before-renting/${item.bookId}`}

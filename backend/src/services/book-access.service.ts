@@ -128,7 +128,6 @@ export class BookAccessService {
         return access;
     }
 
-
     // My Library
     async getMyLibrary(userId: string, page?: string, size?: string) {
         const currentPage = page ? parseInt(page, 10) : 1;
@@ -140,9 +139,33 @@ export class BookAccessService {
             pageSize
         );
 
+        const latestByBook = new Map<string, any>();
+
+        for (const access of bookAccesses) {
+            const bookAny = access.book as any;
+
+            const bookId =
+            typeof bookAny === "string"
+                ? bookAny
+                : (bookAny?._id?.toString?.() ?? String(bookAny));
+                
+            const existing = latestByBook.get(bookId);
+
+            const a = new Date(access.updatedAt ?? access.createdAt ?? access.rentedAt ?? 0).getTime();
+            const b = existing
+                ? new Date(existing.updatedAt ?? existing.createdAt ?? existing.rentedAt ?? 0).getTime()
+                : -1;
+
+            if (!existing || a > b) {
+                latestByBook.set(bookId, access);
+            }
+        }
+
+        const uniqueAccesses = Array.from(latestByBook.values());
+
         const now = new Date();
 
-        const items = bookAccesses.map((access: any) => {
+        const items = uniqueAccesses.map((access: any) => {
             const book = access.book; 
 
             const totalPages = Number(book?.pages ?? 0);
@@ -167,9 +190,8 @@ export class BookAccessService {
                 ? new Date(access.expiresAt)
                 : undefined;
 
-            const isExpired = !!(
-                expiresAt && expiresAt.getTime() <= now.getTime()
-            );
+            const isExpired = !!(expiresAt && expiresAt.getTime() <= now.getTime());
+            const isInactive = access.isActive === false;
 
             let timeLeftLabel = "No expiry";
 
@@ -208,9 +230,10 @@ export class BookAccessService {
 
                 expiresAt,
                 isExpired,
+                isInactive,
                 timeLeftLabel,
 
-                canReRent: isExpired,
+                canReRent: isExpired || isInactive,
             };
         });
 
