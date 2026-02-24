@@ -115,6 +115,102 @@ export class BookAccessService {
     }
 
 
+    // My Library
+    async getMyLibrary(userId: string, page?: string, size?: string) {
+        const currentPage = page ? parseInt(page, 10) : 1;
+        const pageSize = size ? parseInt(size, 10) : 10;
+
+        const { bookAccesses, total } = await bookAccessRepo.getUserLibraryPaginated(
+            userId,
+            currentPage,
+            pageSize
+        );
+
+        const now = new Date();
+
+        const items = bookAccesses.map((access: any) => {
+            const book = access.book; 
+
+            const totalPages = Number(book?.pages ?? 0);
+
+            const hasLastPosition = !!access?.lastPosition?.page;
+            const lastPage = Number(access?.lastPosition?.page ?? 1);
+
+            const progressPercent =
+                totalPages > 0
+                    ? Math.max(
+                        0,
+                        Math.min(
+                            100,
+                            Math.round(
+                                ((hasLastPosition ? lastPage : 0) / totalPages) * 100
+                            )
+                        )
+                    )
+                    : 0;
+
+            const expiresAt: Date | undefined = access.expiresAt
+                ? new Date(access.expiresAt)
+                : undefined;
+
+            const isExpired = !!(
+                expiresAt && expiresAt.getTime() <= now.getTime()
+            );
+
+            let timeLeftLabel = "No expiry";
+
+            if (expiresAt) {
+                if (isExpired) {
+                    timeLeftLabel = "Rental expired";
+                } else {
+                    const diffMs = expiresAt.getTime() - now.getTime();
+                    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+                    if (diffDays >= 1)
+                        timeLeftLabel = `Time left ${diffDays} day${diffDays > 1 ? "s" : ""}`;
+                    else if (diffHours >= 1)
+                        timeLeftLabel = `Time left ${diffHours} hour${diffHours > 1 ? "s" : ""}`;
+                    else
+                        timeLeftLabel = `Time left ${diffMinutes} minute${diffMinutes > 1 ? "s" : ""}`;
+                }
+            }
+
+            return {
+                accessId: access._id?.toString?.() ?? access._id,
+                bookId:
+                    book?._id?.toString?.() ??
+                    access.book?.toString?.() ??
+                    access.book,
+
+                title: book?.title,
+                author: book?.author, 
+                coverImageUrl: book?.coverImageUrl,
+                pages: totalPages,
+
+                lastPage,
+                progressPercent,
+
+                expiresAt,
+                isExpired,
+                timeLeftLabel,
+
+                canReRent: isExpired,
+            };
+        });
+
+        const pagination = {
+            page: currentPage,
+            size: pageSize,
+            total,
+            totalPages: Math.ceil(total / pageSize),
+        };
+
+        return { items, pagination };
+    }
+
+
     // // Update reading progress, bookmarks, quotes, last read
     // async updateBookAccess(userId: string, bookId: string, updates: any) {
     //     const access = await bookAccessRepo.getBookAccessByUserAndBook(userId, bookId);

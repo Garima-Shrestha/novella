@@ -218,6 +218,29 @@ export class BookAccessController {
         }
     }
 
+    // My Library
+    async getMyLibrary(req: Request, res: Response) {
+        try {
+            const userId = req.user?._id;
+            const { page, size }: QueryParams = req.query;
+
+            if (!userId) return res.status(401).json({ success: false, message: "Unauthorized" });
+
+            const { items, pagination } = await bookAccessService.getMyLibrary(userId, page, size);
+
+            return res.status(200).json({
+                success: true,
+                data: items,
+                pagination,
+                message: "My library fetched successfully"
+            });
+        } catch (error: any) {
+            return res.status(error.statusCode || 500).json({
+                success: false,
+                message: error.message || "Internal Server Error"
+            });
+        }
+    }
 
     // // Update reading progress, bookmarks, quotes, last read
     // async updateBookAccess(req: Request, res: Response) {

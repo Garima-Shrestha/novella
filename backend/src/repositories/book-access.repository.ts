@@ -21,6 +21,9 @@ export interface IBookAccessRepository {
     updateLastPosition(userId: string, bookId: string, lastPosition: any): Promise<IBookAccess | null>;
     
     renewBookAccess(id: string, data: Partial<IBookAccess>): Promise<IBookAccess | null>;
+
+    // My library
+    getUserLibraryPaginated( userId: string, page: number, size: number): Promise<{ bookAccesses: IBookAccess[]; total: number }>;
 }
 
 export class BookAccessRepository implements IBookAccessRepository {
@@ -158,5 +161,24 @@ export class BookAccessRepository implements IBookAccessRepository {
         return await BookAccessModel.findByIdAndUpdate(id, data, { new: true })
             .populate("user")
             .populate("book");
+    }
+
+    async getUserLibraryPaginated(
+        userId: string,
+        page: number,
+        size: number
+        ): Promise<{ bookAccesses: IBookAccess[]; total: number }> {
+        const filter: QueryFilter<IBookAccess> = { user: userId };
+
+        const [bookAccesses, total] = await Promise.all([
+            BookAccessModel.find(filter)
+            .sort({ updatedAt: -1 }) 
+            .skip((page - 1) * size)
+            .limit(size)
+            .populate("book"), 
+            BookAccessModel.countDocuments(filter),
+        ]);
+
+        return { bookAccesses, total };
     }
 }

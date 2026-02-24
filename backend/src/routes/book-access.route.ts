@@ -8,6 +8,7 @@ const router = Router();
 router.use(authorizedMiddleware); 
 
 router.post('/rent/:bookId', bookAccessController.rentBook);
+router.get('/my-library', bookAccessController.getMyLibrary);  // my library
 router.get('/', bookAccessController.getUserBooks);
 router.get('/:bookId', bookAccessController.getUserBookById);
 
