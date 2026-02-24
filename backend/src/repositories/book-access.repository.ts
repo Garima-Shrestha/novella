@@ -22,6 +22,9 @@ export interface IBookAccessRepository {
     
     renewBookAccess(id: string, data: Partial<IBookAccess>): Promise<IBookAccess | null>;
 
+    adminRentOrRenewIfExpired(userId: string, bookId: string, data: Partial<IBookAccess>): Promise<IBookAccess>;
+    getAvailableBooksForUser(userId: string, searchTerm?: string): Promise<any[]>;
+
     // My library
     getUserLibraryPaginated( userId: string, page: number, size: number): Promise<{ bookAccesses: IBookAccess[]; total: number }>;
 }
@@ -163,10 +166,69 @@ export class BookAccessRepository implements IBookAccessRepository {
             .populate("book");
     }
 
+    async adminRentOrRenewIfExpired(userId: string,bookId: string,data: Partial<IBookAccess>): Promise<IBookAccess> {
+        const now = new Date();
+        try {
+            const updated = await BookAccessModel.findOneAndUpdate(
+            {
+                user: userId,
+                book: bookId,
+                $or: [
+                    { isActive: false },
+                    { expiresAt: { $exists: true, $lte: now } },
+                ],
+            },
+            {
+                $set: {
+                ...data,
+                isActive: true,
+                },
+                $setOnInsert: {
+                user: userId,
+                book: bookId,
+                },
+            },
+            { new: true, upsert: true }
+            )
+            .populate("user")
+            .populate("book");
+
+            return updated as IBookAccess;
+        } catch (err: any) {
+            if (err?.code === 11000) {
+            throw err;
+            }
+            throw err;
+        }
+    }
+
+    async getAvailableBooksForUser(userId: string, searchTerm?: string): Promise<any[]> {
+        const now = new Date();
+
+        const activeAccess = await BookAccessModel.find({
+            user: userId,
+            isActive: true,
+            $or: [
+                { expiresAt: { $exists: false } }, 
+                { expiresAt: { $gt: now } },       
+            ],
+        }).select("book");
+
+        const blockedBookIds = activeAccess.map((a) => a.book);
+
+        const filter: any = { _id: { $nin: blockedBookIds } };
+        if (searchTerm) {
+            filter.title = { $regex: searchTerm, $options: "i" };
+        }
+
+        const books = await BookModel.find(filter).sort({ createdAt: -1 });
+        return books;
+    }
+
     async getUserLibraryPaginated(
-        userId: string,
-        page: number,
-        size: number
+            userId: string,
+            page: number,
+            size: number
         ): Promise<{ bookAccesses: IBookAccess[]; total: number }> {
         const filter: QueryFilter<IBookAccess> = { user: userId };
 

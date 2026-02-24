@@ -15,9 +15,7 @@ export class AdminBookAccessController {
                 return res.status(400).json({ success: false, message: z.prettifyError(parsedData.error) });
             }
 
-            const pdfUrl = req.file ? `/uploads/pdfs/${req.file.filename}` : parsedData.data.pdfUrl;
-
-            const access = await adminBookAccessService.createBookAccess({ ...parsedData.data, pdfUrl });
+            const access = await adminBookAccessService.createBookAccess(parsedData.data);
 
             return res.status(201).json({
                 success: true,
@@ -115,5 +113,29 @@ export class AdminBookAccessController {
                 message: error.message || "Internal Server Error"
             });
         }
+    }
+
+
+    async getAvailableBooks(req: Request, res: Response) {
+    try {
+        const userId = String(req.query.userId || "");
+        const searchTerm = String(req.query.searchTerm || "");
+        if (!userId) {
+            return res.status(400).json({ success: false, message: "userId is required" });
+        }
+
+        const books = await adminBookAccessService.getAvailableBooksForUser(userId, searchTerm);
+
+        return res.status(200).json({
+            success: true,
+            data: books,
+            message: "Available books fetched successfully",
+        });
+    } catch (error: any) {
+            return res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || "Internal Server Error"
+        });
+    }
     }
 }
