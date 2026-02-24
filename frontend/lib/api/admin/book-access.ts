@@ -2,20 +2,14 @@ import { API } from "../endpoints";
 import axios from "../axios";
 
 // Create a new book access
-export const createBookAccess = async (bookData: FormData) => {
+export const createBookAccess = async (bookData: any) => {
     try {
-        const response = await axios.post(
-            API.ADMIN.BOOK_ACCESS.CREATE,
-            bookData,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                }
-            }
-        );
+        const response = await axios.post(API.ADMIN.BOOK_ACCESS.CREATE, bookData);
         return response.data;
     } catch (error: Error | any) {
-        throw new Error(error.response?.data?.message || error.message || 'Create book access failed');
+        throw new Error(
+        error.response?.data?.message || error.message || "Create book access failed"
+        );
     }
 };
 
@@ -68,3 +62,18 @@ export const deleteBookAccess = async (id: string) => {
         throw new Error(err.response?.data?.message || err.message || "Delete book access failed");
     }
 };
+
+// Fetch available books for a user 
+export const fetchAvailableBooksForUser = async (userId: string, searchTerm?: string) => {
+  try {
+    const response = await axios.get(API.ADMIN.BOOK_ACCESS.AVAILABLE_BOOKS, {
+      params: { userId, searchTerm },
+    });
+    return response.data;
+  } catch (err: any) {
+    throw new Error(
+      err.response?.data?.message || err.message || "Fetch available books failed"
+    );
+  }
+};
+

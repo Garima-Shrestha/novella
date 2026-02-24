@@ -2,15 +2,14 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { BookAccessCreateSchema, BookAccessCreateData } from "@/app/admin/book-access/schema";
-import { createBookAccess } from "@/lib/api/admin/book-access";
+import { createBookAccess, fetchAvailableBooksForUser } from "@/lib/api/admin/book-access";
 import { fetchUsers } from "@/lib/api/admin/user";
-import { fetchBooks } from "@/lib/api/admin/books-before-renting";
 
 function endOfDayISO(dateStr: string) {
   const d = new Date(`${dateStr}T23:59:59.999`);
@@ -37,7 +36,8 @@ export default function CreateBookAccessForm() {
   const {
     register,
     handleSubmit,
-    control,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<BookAccessCreateData>({
     resolver: zodResolver(BookAccessCreateSchema) as any,
@@ -53,18 +53,11 @@ export default function CreateBookAccessForm() {
       setListError(null);
 
       try {
-        const [usersRes, booksRes] = await Promise.all([
-          fetchUsers(1, 200, ""),
-          fetchBooks(1, 200, ""),
-        ]);
-
+        const usersRes = await fetchUsers(1, 200, "");
         if (ignore) return;
-
         if (!usersRes?.success) throw new Error(usersRes?.message || "Failed to load users");
-        if (!booksRes?.success) throw new Error(booksRes?.message || "Failed to load books");
-
         setUsers(usersRes.data || []);
-        setBooks(booksRes.data || []);
+        setBooks([]); // empty until a user is selected
       } catch (e: any) {
         if (ignore) return;
         setListError(e?.message || "Failed to load dropdown lists");
@@ -78,6 +71,47 @@ export default function CreateBookAccessForm() {
       ignore = true;
     };
   }, []);
+
+  const selectedUserId = watch("user");
+
+  useEffect(() => {
+    let ignore = false;
+
+    const loadBooksForUser = async () => {
+      if (!selectedUserId) {
+        setBooks([]);
+        setValue("book", ""); // reset book selection
+        return;
+      }
+
+      try {
+        setLoadingLists(true);
+        setListError(null);
+
+        const res = await fetchAvailableBooksForUser(selectedUserId, "");
+
+        if (ignore) return;
+
+        if (!res?.success) throw new Error(res?.message || "Failed to load available books");
+
+        setBooks(res.data || []);
+        setValue("book", ""); // reset whenever user changes
+      } catch (e: any) {
+        if (ignore) return;
+        setBooks([]);
+        setValue("book", "");
+        setListError(e?.message || "Failed to load available books");
+      } finally {
+        if (!ignore) setLoadingLists(false);
+      }
+    };
+
+    loadBooksForUser();
+
+    return () => {
+      ignore = true;
+    };
+  }, [selectedUserId, setValue, fetchAvailableBooksForUser]);
 
   const userOptions = useMemo(
     () =>
@@ -98,21 +132,17 @@ export default function CreateBookAccessForm() {
   );
 
   const onSubmit = async (data: BookAccessCreateData) => {
-    const formData = new FormData();
-    formData.append("user", data.user);
-    formData.append("book", data.book);
-    formData.append("rentedAt", new Date().toISOString());
-    formData.append("expiresAt", endOfDayISO(data.expiresAt));
-
-    if (!data.pdfFile) {
-      toast.error("PDF is required", { containerId: "admin-book-access-create" });
-      return;
-    }
-    formData.append("pdfUrl", data.pdfFile);
+    const payload = {
+      user: data.user,
+      book: data.book,
+      rentedAt: new Date().toISOString(),
+      expiresAt: endOfDayISO(data.expiresAt),
+      isActive: true,
+    };
 
     startTransition(async () => {
       try {
-        const res = await createBookAccess(formData);
+        const res = await createBookAccess(payload);
 
         if (!res?.success) {
           toast.error(res?.message || "Create book access failed", {
@@ -184,11 +214,15 @@ export default function CreateBookAccessForm() {
           </label>
           <select
             {...register("book")}
-            disabled={loadingLists}
+            disabled={loadingLists || !selectedUserId}
             className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-800 outline-none disabled:bg-slate-50"
           >
             <option value="">
-              {loadingLists ? "Loading books..." : "Select book"}
+              {!selectedUserId
+                ? "Select user first"
+                : loadingLists
+                ? "Loading books..."
+                : "Select book"}
             </option>
             {bookOptions.map((b) => (
               <option key={b.value} value={b.value}>
@@ -222,30 +256,6 @@ export default function CreateBookAccessForm() {
           <label htmlFor="isActive" className="text-sm font-bold text-slate-700">
             Active access (default)
           </label>
-        </div>
-
-        {/* PDF Upload */}
-        <div className="space-y-2 rounded-lg border border-slate-200 p-4">
-          <p className="text-[11px] font-black text-slate-700 uppercase tracking-wide">
-            PDF (Required)
-          </p>
-
-          <Controller
-            name="pdfFile"
-            control={control}
-            render={({ field: { onChange } }) => (
-              <input
-                type="file"
-                accept="application/pdf"
-                className="block w-full text-sm text-slate-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-[11px] file:font-black file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
-                onChange={(e) => onChange(e.target.files?.[0])}
-              />
-            )}
-          />
-
-          {errors.pdfFile?.message && (
-            <p className="text-xs text-red-600">{errors.pdfFile.message as any}</p>
-          )}
         </div>
 
         <button

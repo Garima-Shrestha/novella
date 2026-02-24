@@ -1,8 +1,5 @@
 import { z } from "zod";
 
-const MAX_PDF_SIZE = 50 * 1024 * 1024; // 50MB 
-const ACCEPTED_PDF_TYPES = ["application/pdf"];
-
 const ObjectIdSchema = z
   .string()
   .regex(/^[0-9a-fA-F]{24}$/, { message: "Invalid ID" });
@@ -65,14 +62,6 @@ export const BookAccessCreateSchema = z.object({
     today.setHours(0, 0, 0, 0);
     return picked.getTime() >= today.getTime();
   }, { message: "Expiry date cannot be in the past" }),
-  pdfFile: z
-    .instanceof(File, { message: "PDF is required" })
-    .refine((file) => file.size <= MAX_PDF_SIZE, {
-      message: "Max PDF size is 50MB",
-    })
-    .refine((file) => ACCEPTED_PDF_TYPES.includes(file.type), {
-      message: "Only PDF files are allowed",
-    }),
 });
 
 export type BookAccessCreateData = z.infer<typeof BookAccessCreateSchema>;

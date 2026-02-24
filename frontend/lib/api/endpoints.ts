@@ -62,7 +62,8 @@ export const API = {
             GET_ONE: (id: string) => `/api/admin/book-access/${id}`, 
             UPDATE: (id: string) => `/api/admin/book-access/${id}`, 
             DELETE: (id: string) => `/api/admin/book-access/${id}`,
-            CREATE: '/api/admin/book-access/'                
+            CREATE: '/api/admin/book-access/',   
+            AVAILABLE_BOOKS: "/api/admin/book-access/available-books",             
         }
     }
 }

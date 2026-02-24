@@ -4,23 +4,28 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from "next/headers";
 
 // Create a new book access
-export const handleCreateBookAccess = async (data: FormData) => {
+// Create a new book access (JSON, no PDF upload)
+export const handleCreateBookAccess = async (data: any) => {
     try {
         const response = await createBookAccess(data);
+
         if (response.success) {
-            revalidatePath('/admin/book-access');
+            revalidatePath("/admin/book-access");
             return {
                 success: true,
-                message: 'Book access created successfully',
-                data: response.data
+                message: "Book access created successfully",
+                data: response.data,
             };
         }
         return {
             success: false,
-            message: response.message || 'Create book access failed'
+            message: response.message || "Create book access failed",
         };
     } catch (error: Error | any) {
-        return { success: false, message: error.message || 'Create book access action failed' };
+        return {
+            success: false,
+            message: error.message || "Create book access action failed",
+        };
     }
 };
 
