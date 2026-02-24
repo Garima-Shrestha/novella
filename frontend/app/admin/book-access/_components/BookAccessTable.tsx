@@ -55,7 +55,8 @@ function computeStatus(access: BookAccess) {
   const expiredByDate = !!expMs && expMs < now;
   const inactive = access.isActive === false;
 
-  if (inactive || expiredByDate) return "Expired";
+  if (inactive) return "Inactive";
+  if (expiredByDate) return "Expired";
   return "Active";
 }
 
@@ -360,6 +361,8 @@ export default function BookAccessTable({
                       className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-black border ${
                         status === "Active"
                           ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                          : status === "Inactive"
+                          ? "bg-amber-50 text-amber-700 border-amber-200"
                           : "bg-red-50 text-red-700 border-red-200"
                       }`}
                     >
