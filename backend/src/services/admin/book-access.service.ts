@@ -83,12 +83,47 @@ export class AdminBookAccessService {
     }
 
     // Admin can update a book access 
+    // async updateBookAccess(accessId: string, updates: any) {
+    //     const access = await bookAccessRepo.getBookAccessById(accessId);
+    //     if (!access) throw new HttpError(404, "Book access not found");
+
+    //     const updatedAccess = await bookAccessRepo.updateOneBookAccess(accessId, updates);
+    //     return updatedAccess;
+    // }
+
+    // Admin can update a book access 
     async updateBookAccess(accessId: string, updates: any) {
         const access = await bookAccessRepo.getBookAccessById(accessId);
         if (!access) throw new HttpError(404, "Book access not found");
 
-        const updatedAccess = await bookAccessRepo.updateOneBookAccess(accessId, updates);
-        return updatedAccess;
+        if (updates?.isActive === true) {
+            const getId = (v: any) => String(v?._id ?? v);
+
+            const existingActive = await bookAccessRepo.getActiveAccessByUserAndBook(
+                getId(access.user),
+                getId(access.book)
+            );
+
+            if (existingActive && String(existingActive._id) !== String(access._id)) {
+            throw new HttpError(
+                409,
+                "User already has an active rental for this book. You cannot activate an older access. Please deactivate the current active one first."
+            );
+            }
+        }
+
+        try {
+            const updatedAccess = await bookAccessRepo.updateOneBookAccess(accessId, updates);
+            return updatedAccess;
+        } catch (err: any) {
+            if (err?.code === 11000) {
+            throw new HttpError(
+                409,
+                "User already has an active rental for this book. You cannot activate an older access."
+            );
+            }
+            throw err;
+        }
     }
 
     // Admin can delete a book access
