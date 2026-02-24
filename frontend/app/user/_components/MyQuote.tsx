@@ -209,7 +209,8 @@ export default function MyQuote() {
                   : `${BASE_URL}${first.coverImageUrl}`
                 : "";
 
-              const expired = items.some((x) => x.isExpired);
+              const hasActiveNow = items.some((x) => !x.isExpired);
+              const expired = !hasActiveNow;
 
               return (
                 <div key={bookId} className="rounded-2xl border border-gray-200/70 bg-white shadow-md overflow-hidden">
@@ -249,7 +250,7 @@ export default function MyQuote() {
                   <div className="p-4 pt-3">
                     <ul className="space-y-2">
                       {items.map((item) => {
-                        const key = `${item.bookId}-${item.quoteIndex}-${item.quote.page}`;
+                        const key = `${item.accessId}-${item.quoteIndex}-${item.quote.page}`;
                         const isRemoving =
                           removing?.bookId === item.bookId && removing?.quoteIndex === item.quoteIndex;
 
@@ -266,15 +267,15 @@ export default function MyQuote() {
                               >
                                 <div className="text-xs font-black text-gray-600">
                                   Page {item.quote.page}
-                                  {item.isExpired ? (
-                                    <span className="ml-2 rounded bg-red-100 px-2 py-0.5 text-[10px] font-black text-red-700">
-                                      expired
-                                    </span>
-                                  ) : (
-                                    <span className="ml-2 rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-black text-emerald-700">
-                                      active
-                                    </span>
-                                  )}
+                                  {expired ? (
+                                  <span className="ml-2 rounded bg-red-100 px-2 py-0.5 text-[10px] font-black text-red-700">
+                                    expired
+                                  </span>
+                                ) : (
+                                  <span className="ml-2 rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-black text-emerald-700">
+                                    active
+                                  </span>
+                                )}
                                 </div>
 
                                 <div className="mt-1 text-sm text-gray-900">{item.quote.text}</div>
