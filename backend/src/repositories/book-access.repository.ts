@@ -22,8 +22,9 @@ export interface IBookAccessRepository {
     
     renewBookAccess(id: string, data: Partial<IBookAccess>): Promise<IBookAccess | null>;
 
-    adminRentOrRenewIfExpired(userId: string, bookId: string, data: Partial<IBookAccess>): Promise<IBookAccess>;
+    adminCreateRental(userId: string, bookId: string, data: Partial<IBookAccess>): Promise<IBookAccess>;
     getAvailableBooksForUser(userId: string, searchTerm?: string): Promise<any[]>;
+    getActiveAccessByUserAndBook(userId: string, bookId: string): Promise<IBookAccess | null>;
 
     // My library
     getUserLibraryPaginated( userId: string, page: number, size: number): Promise<{ bookAccesses: IBookAccess[]; total: number }>;
@@ -124,14 +125,14 @@ export class BookAccessRepository implements IBookAccessRepository {
 
     async addBookmark(userId: string, bookId: string, bookmark: any) {
         return await BookAccessModel.findOneAndUpdate(
-            { user: userId, book: bookId },
+            { user: userId, book: bookId, isActive: true },
             { $push: { bookmarks: bookmark } },
             { new: true }
         ).populate("user").populate("book");
     }
 
     async removeBookmark(userId: string, bookId: string, bookmarkIndex: number) {
-        const access = await BookAccessModel.findOne({ user: userId, book: bookId });
+        const access = await BookAccessModel.findOne({ user: userId, book: bookId, isActive: true });
         if (!access) return null;
         access.bookmarks?.splice(bookmarkIndex, 1);
         return await access.save();
@@ -139,14 +140,14 @@ export class BookAccessRepository implements IBookAccessRepository {
 
     async addQuote(userId: string, bookId: string, quote: any) {
         return await BookAccessModel.findOneAndUpdate(
-            { user: userId, book: bookId },
+            { user: userId, book: bookId, isActive: true },
             { $push: { quotes: quote } },
             { new: true }
         ).populate("user").populate("book");
     }
 
     async removeQuote(userId: string, bookId: string, quoteIndex: number) {
-        const access = await BookAccessModel.findOne({ user: userId, book: bookId });
+        const access = await BookAccessModel.findOne({ user: userId, book: bookId, isActive: true });
         if (!access) return null;
         access.quotes?.splice(quoteIndex, 1);
         return await access.save();
@@ -154,7 +155,7 @@ export class BookAccessRepository implements IBookAccessRepository {
 
     async updateLastPosition(userId: string, bookId: string, lastPosition: any) {
         return await BookAccessModel.findOneAndUpdate(
-            { user: userId, book: bookId },
+            { user: userId, book: bookId, isActive: true },
             { $set: { lastPosition } },
             { new: true }
         ).populate("user").populate("book");
@@ -166,40 +167,49 @@ export class BookAccessRepository implements IBookAccessRepository {
             .populate("book");
     }
 
-    async adminRentOrRenewIfExpired(userId: string,bookId: string,data: Partial<IBookAccess>): Promise<IBookAccess> {
+     async adminCreateRental(
+    userId: string,
+    bookId: string,
+    data: Partial<IBookAccess>
+    ): Promise<IBookAccess> {
         const now = new Date();
-        try {
-            const updated = await BookAccessModel.findOneAndUpdate(
-            {
-                user: userId,
-                book: bookId,
-                $or: [
-                    { isActive: false },
-                    { expiresAt: { $exists: true, $lte: now } },
-                ],
-            },
-            {
-                $set: {
-                ...data,
-                isActive: true,
-                },
-                $setOnInsert: {
-                user: userId,
-                book: bookId,
-                },
-            },
-            { new: true, upsert: true }
-            )
+
+        const active = await BookAccessModel.findOne({
+            user: userId,
+            book: bookId,
+            isActive: true,
+        });
+
+        if (active) {
+            const exp = active.expiresAt ? new Date(active.expiresAt) : null;
+            const isExpired = !!(exp && exp.getTime() <= now.getTime());
+
+            if (!isExpired) {
+                throw new Error("ACTIVE_NOT_EXPIRED");
+            }
+
+            await BookAccessModel.updateOne(
+                { _id: active._id },
+                { $set: { isActive: false } }
+            );
+        }
+
+        const created = await BookAccessModel.create({
+            ...data,
+            user: userId,
+            book: bookId,
+            isActive: true,
+        });
+
+        return await BookAccessModel.findById(created._id)
+            .populate("user")
+            .populate("book") as IBookAccess;
+    }
+
+    async getActiveAccessByUserAndBook(userId: string, bookId: string): Promise<IBookAccess | null> {
+        return await BookAccessModel.findOne({ user: userId, book: bookId, isActive: true })
             .populate("user")
             .populate("book");
-
-            return updated as IBookAccess;
-        } catch (err: any) {
-            if (err?.code === 11000) {
-            throw err;
-            }
-            throw err;
-        }
     }
 
     async getAvailableBooksForUser(userId: string, searchTerm?: string): Promise<any[]> {

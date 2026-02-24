@@ -50,7 +50,10 @@ const BookAccessSchema: Schema = new Schema({
     timestamps: true,
 });
 
-BookAccessSchema.index({ user: 1, book: 1 }, { unique: true });
+BookAccessSchema.index(
+    { user: 1, book: 1, isActive: 1 },
+    { unique: true, partialFilterExpression: { isActive: true } }
+);
 
 export interface IBookAccess extends BookAccessType, Document {
     _id: mongoose.Types.ObjectId;

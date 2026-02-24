@@ -10,9 +10,18 @@ export class AdminBookAccessService {
     // Create Book Access
     async createBookAccess(data: any) {
         const now = new Date();
-        const existing = await bookAccessRepo.getBookAccessByUserAndBook(data.user, data.book);
-        if (existing && existing.isActive && (!existing.expiresAt || existing.expiresAt > now)) {
-            throw new HttpError(400, `This user already has access to this book until ${existing.expiresAt}`);
+        const existingActive = await bookAccessRepo.getActiveAccessByUserAndBook(data.user, data.book);
+
+        if (existingActive) {
+        const exp = existingActive.expiresAt ? new Date(existingActive.expiresAt) : null;
+        const isExpired = !!(exp && exp.getTime() <= now.getTime());
+
+        if (!isExpired) {
+            throw new HttpError(
+            409,
+            `This user already has access to this book until ${existingActive.expiresAt}`
+            );
+        }
         }
 
         const activePdf = await adminPdfRepo.getActivePdfByBook(data.book);
@@ -31,13 +40,17 @@ export class AdminBookAccessService {
         };
 
         try {
-            const access = await bookAccessRepo.adminRentOrRenewIfExpired(
+            const access = await bookAccessRepo.adminCreateRental(
                 data.user,
                 data.book,
                 payload
             );
             return access;
         } catch (err: any) {
+            if (err?.message === "ACTIVE_NOT_EXPIRED") {
+                throw new HttpError(409, `This user already has access to this book until ${existingActive?.expiresAt}`);
+            }
+
             if (err?.code === 11000) {
                 throw new HttpError(409, "This user already has an active access for this book");
             }

@@ -16,33 +16,34 @@ export class BookAccessService {
         const book = await bookRepo.getBookById(bookId);
         if (!book) throw new HttpError(404, "Book not found");
 
-        // fetch active pdf for this book
         const activePdf = await adminPdfRepo.getActivePdfByBook(bookId);
-        if (!activePdf?.pdfUrl) throw new HttpError(404, "PDF not uploaded for this book yet");
+        if (!activePdf?.pdfUrl) {
+            throw new HttpError(404, "PDF not uploaded for this book yet");
+        }
 
         const now = new Date();
 
-        const existingAccess = await bookAccessRepo.getBookAccessByUserAndBook(userId, bookId);
-        if (existingAccess && existingAccess.isActive && (!existingAccess.expiresAt || existingAccess.expiresAt > now)) {
-            throw new HttpError(400, `Book already rented until ${existingAccess.expiresAt}`);
+        const activeAccess = await bookAccessRepo.getActiveAccessByUserAndBook(userId, bookId);
+
+        if (activeAccess) {
+            const exp = activeAccess.expiresAt ? new Date(activeAccess.expiresAt) : null;
+            const isExpired = !!(exp && exp.getTime() <= now.getTime());
+
+            if (!isExpired) {
+                throw new HttpError(400, `Book already rented until ${activeAccess.expiresAt}`);
+            }
         }
 
-        const newAccessData = {
-            user: userId,
-            book: bookId,
-            rentedAt: now,
-            expiresAt: expiresAt,
-            isActive: true,
-            pdfUrl: activePdf.pdfUrl,
-        };
+        const newAccess = await bookAccessRepo.adminCreateRental(
+            userId,
+            bookId,
+            {
+                rentedAt: now,
+                expiresAt: expiresAt,
+                pdfUrl: activePdf.pdfUrl,
+            }
+        );
 
-        if (existingAccess) {
-            const renewed = await bookAccessRepo.renewBookAccess(existingAccess._id.toString(), newAccessData);
-            if (!renewed) throw new HttpError(500, "Failed to renew book access");
-            return renewed;
-        }
-
-        const newAccess = await bookAccessRepo.createBookAccess(newAccessData);
         return newAccess;
     }
 
@@ -65,8 +66,18 @@ export class BookAccessService {
 
     // Get a specific rented book
     async getUserBookAccessByBook(userId: string, bookId: string) {
-        const access = await bookAccessRepo.getBookAccessByUserAndBook(userId, bookId);
-        if (!access || !access.isActive) throw new HttpError(404, "Book not rented or inactive");
+        const access = await bookAccessRepo.getActiveAccessByUserAndBook(userId, bookId);
+
+        if (!access) {
+            throw new HttpError(404, "Book not rented or inactive");
+        }
+
+        const now = new Date();
+        const exp = access.expiresAt ? new Date(access.expiresAt) : null;
+
+        if (exp && exp.getTime() <= now.getTime()) {
+            throw new HttpError(403, "Rental expired");
+        }
 
         if (!access.pdfUrl) {
             const activePdf = await adminPdfRepo.getActivePdfByBook(bookId);
