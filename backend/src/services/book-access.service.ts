@@ -247,6 +247,55 @@ export class BookAccessService {
         return { items, pagination };
     }
 
+    // History
+    async getMyHistory(userId: string, page?: string, size?: string) {
+        const currentPage = page ? parseInt(page, 10) : 1;
+        const pageSize = size ? parseInt(size, 10) : 10;
+
+        const { bookAccesses, total } = await bookAccessRepo.getUserHistoryPaginated(
+            userId,
+            currentPage,
+            pageSize
+        );
+
+        const now = new Date();
+
+        const items = bookAccesses.map((access: any) => {
+            const book = access.book;
+
+            const expiresAt: Date | undefined = access.expiresAt
+            ? new Date(access.expiresAt)
+            : undefined;
+
+            const isExpired = !!(expiresAt && expiresAt.getTime() <= now.getTime());
+            const isInactive = access.isActive === false;
+
+            return {
+                accessId: access._id?.toString?.() ?? String(access._id),
+                bookId: book?._id?.toString?.() ?? String(book?._id),
+                title: book?.title,
+                author: book?.author,
+                coverImageUrl: book?.coverImageUrl,
+                pages: Number(book?.pages ?? 0),
+                genre: book?.genre, 
+                rentedAt: access.rentedAt,
+                expiresAt: access.expiresAt,
+                isExpired,
+                isInactive,
+                canReRent: isExpired || isInactive,
+            };
+        });
+
+        const pagination = {
+            page: currentPage,
+            size: pageSize,
+            total,
+            totalPages: Math.ceil(total / pageSize),
+        };
+
+        return { items, pagination };
+    }
+
 
     // // Update reading progress, bookmarks, quotes, last read
     // async updateBookAccess(userId: string, bookId: string, updates: any) {

@@ -27,7 +27,10 @@ export interface IBookAccessRepository {
     getActiveAccessByUserAndBook(userId: string, bookId: string): Promise<IBookAccess | null>;
 
     // My library
-    getUserLibraryPaginated( userId: string, page: number, size: number): Promise<{ bookAccesses: IBookAccess[]; total: number }>;
+    getUserLibraryPaginated(userId: string, page: number, size: number): Promise<{ bookAccesses: IBookAccess[]; total: number }>;
+
+    // History
+    getUserHistoryPaginated(userId: string, page: number, size: number): Promise<{ bookAccesses: IBookAccess[]; total: number }>;
 }
 
 export class BookAccessRepository implements IBookAccessRepository {
@@ -248,6 +251,25 @@ export class BookAccessRepository implements IBookAccessRepository {
             .skip((page - 1) * size)
             .limit(size)
             .populate("book"), 
+            BookAccessModel.countDocuments(filter),
+        ]);
+
+        return { bookAccesses, total };
+    }
+
+    async getUserHistoryPaginated(
+        userId: string,
+        page: number,
+        size: number
+        ): Promise<{ bookAccesses: IBookAccess[]; total: number }> {
+        const filter: QueryFilter<IBookAccess> = { user: userId };
+
+        const [bookAccesses, total] = await Promise.all([
+            BookAccessModel.find(filter)
+            .sort({ rentedAt: -1, createdAt: -1 })
+            .skip((page - 1) * size)
+            .limit(size)
+            .populate("book"),
             BookAccessModel.countDocuments(filter),
         ]);
 

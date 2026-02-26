@@ -242,6 +242,30 @@ export class BookAccessController {
         }
     }
 
+    // History
+    async getMyHistory(req: Request, res: Response) {
+        try {
+            const userId = req.user?._id;
+            const { page, size }: QueryParams = req.query;
+
+            if (!userId) return res.status(401).json({ success: false, message: "Unauthorized" });
+
+            const { items, pagination } = await bookAccessService.getMyHistory(userId, page, size);
+
+            return res.status(200).json({
+                success: true,
+                data: items,
+                pagination,
+                message: "My history fetched successfully",
+            });
+        } catch (error: any) {
+                return res.status(error.statusCode || 500).json({
+                success: false,
+                message: error.message || "Internal Server Error",
+            });
+        }
+    }
+
     // // Update reading progress, bookmarks, quotes, last read
     // async updateBookAccess(req: Request, res: Response) {
     //     try {
