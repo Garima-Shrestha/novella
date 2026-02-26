@@ -28,6 +28,7 @@ export const API = {
         UPDATE_LAST_POSITION: (bookId: string) => `/api/book-access/${bookId}/last-position`,
     },
     MY_LIBRARY: "/api/book-access/my-library",
+    HISTORY: "/api/book-access/history",
     ADMIN:{
         USER:{
             CREATE: '/api/admin/users/',
