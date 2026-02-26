@@ -23,20 +23,23 @@ export class BookAccessService {
 
         const now = new Date();
         const activeAccess = await bookAccessRepo.getActiveAccessByUserAndBook(userId, bookId);
+        const previousAccess = await bookAccessRepo.getPreviousAccessByUserAndBook(userId, bookId)
 
         let carryBookmarks: any[] = [];
         let carryQuotes: any[] = [];
+
+        if (previousAccess) {
+            carryBookmarks = previousAccess.bookmarks ?? [];
+            carryQuotes = previousAccess.quotes ?? [];
+        }
 
         if (activeAccess) {
             const exp = activeAccess.expiresAt ? new Date(activeAccess.expiresAt) : null;
             const isExpired = !!(exp && exp.getTime() <= now.getTime());
 
             if (!isExpired) {
-            throw new HttpError(400, `Book already rented until ${activeAccess.expiresAt}`);
+                throw new HttpError(400, `Book already rented until ${activeAccess.expiresAt}`);
             }
-
-            carryBookmarks = activeAccess.bookmarks ?? [];
-            carryQuotes = activeAccess.quotes ?? [];
         }
 
         const newAccess = await bookAccessRepo.adminCreateRental(userId, bookId, {

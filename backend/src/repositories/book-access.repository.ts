@@ -25,6 +25,7 @@ export interface IBookAccessRepository {
     adminCreateRental(userId: string, bookId: string, data: Partial<IBookAccess>): Promise<IBookAccess>;
     getAvailableBooksForUser(userId: string, searchTerm?: string): Promise<any[]>;
     getActiveAccessByUserAndBook(userId: string, bookId: string): Promise<IBookAccess | null>;
+    getPreviousAccessByUserAndBook(userId: string, bookId: string): Promise<IBookAccess | null>;
 
     // My library
     getUserLibraryPaginated(userId: string, page: number, size: number): Promise<{ bookAccesses: IBookAccess[]; total: number }>;
@@ -213,6 +214,13 @@ export class BookAccessRepository implements IBookAccessRepository {
         return await BookAccessModel.findOne({ user: userId, book: bookId, isActive: true })
             .populate("user")
             .populate("book");
+    }
+
+    async getPreviousAccessByUserAndBook(userId: string, bookId: string): Promise<IBookAccess | null> {
+        return await BookAccessModel.findOne({
+            user: userId,
+            book: bookId,
+        }).sort({ createdAt: -1 });
     }
 
     async getAvailableBooksForUser(userId: string, searchTerm?: string): Promise<any[]> {
