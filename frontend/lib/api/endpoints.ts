@@ -29,6 +29,10 @@ export const API = {
     },
     MY_LIBRARY: "/api/book-access/my-library",
     HISTORY: "/api/book-access/history",
+    KHALTI: {
+        INITIATE: '/api/khalti/initiate',
+        VERIFY: '/api/khalti/verify',
+    },
     ADMIN:{
         USER:{
             CREATE: '/api/admin/users/',

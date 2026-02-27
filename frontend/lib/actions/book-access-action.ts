@@ -2,7 +2,7 @@
 "use server"
 
 import { redirect } from "next/navigation";
-import { rentBook, fetchMyBookAccesses, fetchMyBookAccessByBook, addBookmark, removeBookmark, addQuote, removeQuote, updateLastPosition } from "../api/book-access";
+import { rentBook, fetchMyBookAccesses, fetchMyBookAccessByBook, addBookmark, removeBookmark, addQuote, removeQuote, updateLastPosition, initiateKhaltiPayment, verifyKhaltiPayment } from "../api/book-access";
 import { revalidatePath } from "next/cache";
 
 export const handleRentBook = async (bookId: string, formData: { expiresAt: string }) => {
@@ -121,3 +121,47 @@ export const handleUpdateLastPosition = async (bookId: string, lastPosition: any
     }
 }
 
+// Initiate Khalti payment
+export const handleInitiateKhaltiPayment = async (data: {
+  bookId: string;
+  amount: number;
+  purchase_order_id: string;
+  purchase_order_name: string;
+}) => {
+  try {
+    const result = await initiateKhaltiPayment(data);
+    if (result.success) {
+      return {
+        success: true,
+        data: result.data,
+        message: "Khalti payment initiated"
+      };
+    }
+    return {
+      success: false,
+      message: result.message || "Initiate Khalti payment failed"
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err.message || "Initiate Khalti payment failed"
+    };
+  }
+};
+
+// Verify Khalti payment
+export const handleVerifyKhaltiPayment = async (pidx: string) => {
+  try {
+    const result = await verifyKhaltiPayment(pidx);
+    return {
+      success: true,
+      data: result.data,
+      message: "Khalti payment verified"
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err.message || "Verify Khalti payment failed"
+    };
+  }
+};

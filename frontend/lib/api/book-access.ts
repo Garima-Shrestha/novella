@@ -102,3 +102,35 @@ export const updateLastPosition = async (bookId: string, lastPosition: any) => {
     );
   }
 };
+
+// Initiate Khalti payment
+export const initiateKhaltiPayment = async (data: {
+  bookId: string;
+  amount: number;
+  purchase_order_id: string;
+  purchase_order_name: string;
+}) => {
+  try {
+    const response = await axios.post(API.KHALTI.INITIATE, data);
+    return response.data;
+  } catch (err: any) {
+    throw new Error(
+      err.response?.data?.message || err.message || "Initiate Khalti payment failed"
+    );
+  }
+};
+
+// Verify Khalti payment
+export const verifyKhaltiPayment = async (pidx: string) => {
+  try {
+    const response = await axios.post(API.KHALTI.VERIFY, { pidx });
+    return response.data;
+  } catch (err: any) {
+    if (err.response?.data) {
+      return err.response.data;
+    }
+    throw new Error(
+      err.response?.data?.message || err.message || "Verify Khalti payment failed"
+    );
+  }
+};

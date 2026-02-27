@@ -14,6 +14,7 @@ import adminCategoryRoutes from './routes/admin/category.route';
 import bookAccessRoutes from './routes/book-access.route';
 import adminBookAccessRoutes from './routes/admin/book-access.route'; 
 import adminPDFRoutes from './routes/admin/admin-pdf.route';
+import khaltiRoutes from "./routes/khalti.route";
 
 dotenv.config();
 console.log(process.env.PORT);
@@ -43,5 +44,6 @@ app.use('/api/admin/categories', adminCategoryRoutes);
 app.use('/api/book-access', bookAccessRoutes);
 app.use('/api/admin/book-access', adminBookAccessRoutes);
 app.use('/api/admin/admin-pdf', adminPDFRoutes);
+app.use("/api/khalti", khaltiRoutes);
 
 export default app;
