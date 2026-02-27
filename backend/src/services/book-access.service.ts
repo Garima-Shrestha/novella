@@ -37,6 +37,14 @@ export class BookAccessService {
             const exp = activeAccess.expiresAt ? new Date(activeAccess.expiresAt) : null;
             const isExpired = !!(exp && exp.getTime() <= now.getTime());
 
+            if (!exp) {
+                const updated = await bookAccessRepo.updateOneBookAccess(
+                activeAccess._id.toString(),
+                { expiresAt }
+                );
+                return updated;
+            }
+
             if (!isExpired) {
                 throw new HttpError(400, `Book already rented until ${activeAccess.expiresAt}`);
             }

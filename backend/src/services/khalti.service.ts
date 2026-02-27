@@ -136,13 +136,23 @@ export class KhaltiService {
     try {
       const now = new Date();
 
+      const previousAccess = await bookAccessRepo.getPreviousAccessByUserAndBook(
+        payment.user.toString(),
+        payment.book.toString()
+      );
+
+      const carryBookmarks = previousAccess?.bookmarks ?? [];
+      const carryQuotes = previousAccess?.quotes ?? [];
+
       const createdAccess = await bookAccessRepo.createBookAccess({
         user: payment.user,
         book: payment.book,
         rentedAt: now,
-        expiresAt: undefined,
+        expiresAt: undefined, 
         isActive: true,
         pdfUrl: activePdf.pdfUrl,
+        bookmarks: carryBookmarks,
+        quotes: carryQuotes,
       } as any);
 
       await khaltiRepo.updatePaymentByPidx(data.pidx, {
