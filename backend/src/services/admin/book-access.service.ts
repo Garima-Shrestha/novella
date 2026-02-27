@@ -11,17 +11,15 @@ export class AdminBookAccessService {
     async createBookAccess(data: any) {
         const now = new Date();
         const existingActive = await bookAccessRepo.getActiveAccessByUserAndBook(data.user, data.book);
-
         if (existingActive) {
-        const exp = existingActive.expiresAt ? new Date(existingActive.expiresAt) : null;
-        const isExpired = !!(exp && exp.getTime() <= now.getTime());
-
-        if (!isExpired) {
-            throw new HttpError(
-            409,
-            `This user already has access to this book until ${existingActive.expiresAt}`
-            );
-        }
+            const exp = existingActive.expiresAt ? new Date(existingActive.expiresAt) : null;
+            const isExpired = !!(exp && exp.getTime() <= now.getTime());
+            if (!isExpired) {
+                throw new HttpError(
+                    409,
+                    `This user already has access to this book until ${existingActive.expiresAt}`
+                );
+            }
         }
 
         const activePdf = await adminPdfRepo.getActivePdfByBook(data.book);
@@ -29,13 +27,17 @@ export class AdminBookAccessService {
             throw new HttpError(404, "PDF not uploaded for this book yet");
         }
 
+        const previousAccess = await bookAccessRepo.getPreviousAccessByUserAndBook(data.user, data.book);
+        const carryBookmarks = data.bookmarks ?? (previousAccess?.bookmarks ?? []);
+        const carryQuotes = data.quotes ?? (previousAccess?.quotes ?? []);
+
         const payload = {
             rentedAt: data.rentedAt ?? now,
             expiresAt: data.expiresAt,
             isActive: true,
             pdfUrl: activePdf.pdfUrl,
-            bookmarks: data.bookmarks ?? (existingActive?.bookmarks ?? []),
-            quotes: data.quotes ?? (existingActive?.quotes ?? []),
+            bookmarks: carryBookmarks,
+            quotes: carryQuotes,
             lastPosition: data.lastPosition,
         };
 
@@ -50,7 +52,6 @@ export class AdminBookAccessService {
             if (err?.message === "ACTIVE_NOT_EXPIRED") {
                 throw new HttpError(409, `This user already has access to this book until ${existingActive?.expiresAt}`);
             }
-
             if (err?.code === 11000) {
                 throw new HttpError(409, "This user already has an active access for this book");
             }
