@@ -231,7 +231,7 @@ export default function BookTable({ books, pagination, search }: { books: Book[]
                         <td className="p-4 text-sm text-gray-800">{book.author}</td>
                         <td className="p-4 text-sm text-gray-800">{book.genre?.name || "Uncategorized"}</td>
                         <td className="p-4 text-sm text-gray-800">{book.pages}</td>
-                        <td className="p-4 text-sm text-gray-800">${book.price}</td>
+                        <td className="p-4 text-sm text-gray-800">Rs. {book.price}</td>
                         <td className="p-4 w-[220px]">
                         <div className="flex items-center gap-2">
                             <Link

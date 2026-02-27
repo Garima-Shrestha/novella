@@ -31,8 +31,23 @@ export default function BookDetailsCard({ book }: Props) {
   const [renting, setRenting] = useState(false);
   const [expiresAt, setExpiresAt] = useState("");
   const [paying, setPaying] = useState(false);
+  const pad2 = (n: number) => String(n).padStart(2, "0");
 
-  const todayStr = new Date().toISOString().split("T")[0];
+  const toLocalDateInputValue = (d: Date) => {
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  };
+
+  const addDays = (d: Date, days: number) => {
+    const copy = new Date(d);
+    copy.setDate(copy.getDate() + days);
+    return copy;
+  };
+
+  const MIN_DAYS = 1;  
+  const MAX_DAYS = 30; 
+  const today = new Date();
+  const todayStr = toLocalDateInputValue(today);
+  const maxExpiryStr = toLocalDateInputValue(addDays(today, MAX_DAYS - 1));
 
   const calculateDays = () => {
     if (!expiresAt) return 0;
@@ -43,6 +58,15 @@ export default function BookDetailsCard({ book }: Props) {
 
   const pay = async () => {
     if (!expiresAt) return toast.error("Please select expiry date");
+
+    if (expiresAt < todayStr) {
+      return toast.error("Expiry date cannot be before today.");
+    }
+
+    if (expiresAt > maxExpiryStr) {
+      return toast.error(`Maximum rental is ${MAX_DAYS} days.`);
+    }
+
     setPaying(true);
     try {
       sessionStorage.setItem("khalti_expiresAt", expiresAt);
@@ -131,7 +155,7 @@ export default function BookDetailsCard({ book }: Props) {
                 Price
               </div>
               <div className="mt-2 text-xl font-bold text-slate-900">
-                Rs {book.price}
+                Rs. {book.price}
               </div>
             </div>
 
@@ -190,9 +214,27 @@ export default function BookDetailsCard({ book }: Props) {
                   type="date"
                   value={expiresAt}
                   min={todayStr}
-                  onChange={(e) => setExpiresAt(e.target.value)}
+                  max={maxExpiryStr}
+                  onChange={(e) => {
+                    const next = e.target.value;
+
+                    if (next && next < todayStr) {
+                      toast.error("Expiry date cannot be before today.");
+                      return;
+                    }
+                    if (next && next > maxExpiryStr) {
+                      toast.error(`Maximum rental is ${MAX_DAYS} days.`);
+                      setExpiresAt(maxExpiryStr);
+                      return;
+                    }
+
+                    setExpiresAt(next);
+                  }}
                   className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
                 />
+                <p className="text-xs text-slate-500 mt-1">
+                  Select between {MIN_DAYS} and {MAX_DAYS} days (max expiry: {maxExpiryStr})
+                </p>
               </div>
 
               <div className="text-sm">
