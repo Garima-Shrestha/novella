@@ -6,9 +6,6 @@ import { UserModel } from "../../models/user.model";
 import { CategoryModel } from "../../models/category.model";
 import { BookModel } from "../../models/book.model";
 import { BookAccessModel } from "../../models/book-access.model";
-
-// ✅ IMPORTANT: replace this import with your real AdminPDF model import
-// Example: import { AdminPDFModel } from "../../models/admin-pdf.model";
 import { AdminPDFModel } from "../../models/admin-pdf.model";
 
 describe("Admin BookAccess Integration Tests", () => {
@@ -42,7 +39,6 @@ describe("Admin BookAccess Integration Tests", () => {
   let accessId = "";
 
   beforeAll(async () => {
-    // cleanup
     await UserModel.deleteMany({
       $or: [
         { email: adminUser.email },
@@ -56,9 +52,8 @@ describe("Admin BookAccess Integration Tests", () => {
     await CategoryModel.deleteMany({ name: testCategory.name });
     await BookModel.deleteMany({ title: `Access Admin Book ${uniq}` });
     await BookAccessModel.deleteMany({});
-    await AdminPDFModel.deleteMany({}); // keep it clean
+    await AdminPDFModel.deleteMany({}); 
 
-    // create admin + user
     const adminHashed = await bcryptjs.hash(adminUser.password, 10);
     const admin = await UserModel.create({ ...adminUser, password: adminHashed });
     adminId = admin._id.toString();
@@ -67,7 +62,6 @@ describe("Admin BookAccess Integration Tests", () => {
     const user = await UserModel.create({ ...normalUser, password: userHashed });
     userId = user._id.toString();
 
-    // login admin
     const loginRes = await request(app)
       .post("/api/auth/login")
       .send({ email: adminUser.email, password: adminUser.password });
@@ -76,7 +70,6 @@ describe("Admin BookAccess Integration Tests", () => {
     expect(loginRes.body).toHaveProperty("token");
     adminToken = loginRes.body.token;
 
-    // create category + book
     const cat = await CategoryModel.create({ name: testCategory.name });
     categoryId = cat._id.toString();
 
