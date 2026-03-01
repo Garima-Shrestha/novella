@@ -65,6 +65,19 @@ describe("Auth Integration Tests", () => {
         expect(response.status).toBe(409);
         expect(response.body).toHaveProperty("success", false);
         });
+
+        test("should not register a new user with duplicate phone", async () => {
+        const response = await request(app)
+            .post("/api/auth/register")
+            .send({
+            ...testUser,
+            email: "phone-dup@email.com",
+            username: "phoneDupUser",    
+            });
+
+        expect(response.status).toBe(409);
+        expect(response.body).toHaveProperty("success", false);
+        });
     });
 
     describe("POST /api/auth/login", () => {
@@ -84,6 +97,15 @@ describe("Auth Integration Tests", () => {
             .send({ email: testUser.email, password: "WrongPassword!" });
 
         expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("success", false);
+        });
+        
+        test("should not login with unregistered email", async () => {
+        const response = await request(app)
+            .post("/api/auth/login")
+            .send({ email: "notfound@email.com", password: "Password123!" });
+
+        expect(response.status).toBe(404);
         expect(response.body).toHaveProperty("success", false);
         });
     });
