@@ -123,4 +123,43 @@ describe("BookAccessService Unit Tests", () => {
     expect(result).toHaveProperty("pagination");
     expect(result.pagination).toEqual({ page: 1, size: 10, total: 2, totalPages: 1 });
   });
+
+  test("getUserBookAccessByBook - should throw 404 if no active access", async () => {
+    getActiveAccessByUserAndBookSpy.mockResolvedValue(null);
+
+    await expect(
+      bookAccessService.getUserBookAccessByBook("u1", "b1")
+    ).rejects.toThrow("Book not rented or inactive");
+  });
+
+  test("getUserBookAccessByBook - should throw 403 if rental expired", async () => {
+    getActiveAccessByUserAndBookSpy.mockResolvedValue({
+      _id: "a1",
+      expiresAt: new Date(Date.now() - 1000 * 60 * 60),
+      isActive: true,
+      pdfUrl: "/uploads/pdfs/test.pdf",
+    } as any);
+
+    await expect(
+      bookAccessService.getUserBookAccessByBook("u1", "b1")
+    ).rejects.toThrow("Rental expired");
+  });
+
+  test("updateLastPosition - should throw 404 if access not found", async () => {
+    updateLastPositionSpy.mockResolvedValue(null);
+
+    await expect(
+      bookAccessService.updateLastPosition("u1", "b1", { page: 1, offsetY: 0, zoom: 1 })
+    ).rejects.toThrow("Book not rented");
+  });
+
+  test("getUserBooks - should use default pagination when not provided", async () => {
+    getBookAccessesByUserPaginatedSpy.mockResolvedValue({ bookAccesses: [], total: 0 });
+
+    const result = await bookAccessService.getUserBooks("u1");
+
+    expect(getBookAccessesByUserPaginatedSpy).toHaveBeenCalledWith("u1", 1, 10);
+    expect(result.pagination.page).toBe(1);
+    expect(result.pagination.size).toBe(10);
+  });
 });

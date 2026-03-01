@@ -51,4 +51,56 @@ describe("User Repository Unit Tests", () => {
     expect(found?.email).toBe("Case@Test.com"); 
     expect(found?.username).toBe("caseuser");
   });
+
+  test("should get user by id", async () => {
+    const created = await UserModel.create({
+      username: "idtestuser",
+      email: "idtest@example.com",
+      countryCode: "+977",
+      phone: "9800000099",
+      password: "Password123!",
+      role: "user" as const,
+    });
+
+    const found = await userRepository.getUserById(created._id.toString());
+
+    expect(found).toBeDefined();
+    expect(found?._id.toString()).toBe(created._id.toString());
+  });
+
+  test("should update a user", async () => {
+    const created = await UserModel.create({
+      username: "updatetestuser",
+      email: "updatetest@example.com",
+      countryCode: "+977",
+      phone: "9800000088",
+      password: "Password123!",
+      role: "user" as const,
+    });
+
+    const updated = await userRepository.updateOneUser(created._id.toString(), {
+      username: "updatedusername",
+    });
+
+    expect(updated).toBeDefined();
+    expect(updated?.username).toBe("updatedusername");
+  });
+
+  test("should delete a user", async () => {
+    const created = await UserModel.create({
+      username: "deletetestuser",
+      email: "deletetest@example.com",
+      countryCode: "+977",
+      phone: "9800000077",
+      password: "Password123!",
+      role: "user" as const,
+    });
+
+    const result = await userRepository.deleteOneUser(created._id.toString());
+
+    expect(result).toBe(true);
+
+    const found = await userRepository.getUserById(created._id.toString());
+    expect(found).toBeNull();
+  });
 });

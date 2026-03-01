@@ -65,4 +65,33 @@ describe("AdminPDF Repository Unit Tests", () => {
     expect(found?.isActive).toBe(true);
     expect(found?.pdfUrl).toBe("/uploads/pdfs/active.pdf");
   });
+
+  test("should get admin PDF by book id", async () => {
+    await AdminPDFModel.create({
+      book: bookId,
+      pdfUrl: "/uploads/pdfs/bybook.pdf",
+      isActive: false,
+    });
+
+    const found = await adminPDFRepository.getAdminPDFByBook(bookId);
+
+    expect(found).toBeDefined();
+    expect(found?.pdfUrl).toBe("/uploads/pdfs/bybook.pdf");
+  });
+
+  test("should update an admin PDF", async () => {
+    const created = await AdminPDFModel.create({
+      book: bookId,
+      pdfUrl: "/uploads/pdfs/old.pdf",
+      isActive: false,
+    });
+
+    const updated = await adminPDFRepository.updateOneAdminPDF(
+      created._id.toString(),
+      { pdfUrl: "/uploads/pdfs/updated.pdf" }
+    );
+
+    expect(updated).toBeDefined();
+    expect(updated?.pdfUrl).toBe("/uploads/pdfs/updated.pdf");
+  });
 });

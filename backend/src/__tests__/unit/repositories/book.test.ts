@@ -59,4 +59,28 @@ describe("Book Repository Unit Tests", () => {
     expect(found?.title).toBe("Case Book");
     expect(found?.author).toBe("Some Author");
   });
+
+  test("should get book by id", async () => {
+    const created = await BookModel.create({
+      title: "Get By Id Book",
+      author: "Id Author",
+      genre: categoryId,
+      pages: 100,
+      price: 10,
+      publishedDate: "2024-01-01",
+      coverImageUrl: "/uploads/book.jpg",
+      description: "Test",
+    });
+
+    const found = await bookRepository.getBookById(created._id.toString());
+
+    expect(found).toBeDefined();
+    expect(found?.title).toBe("Get By Id Book");
+  });
+
+  test("should return null for non-existing book id", async () => {
+    const found = await bookRepository.getBookById("64f0f0f0f0f0f0f0f0f0f0f0");
+
+    expect(found).toBeNull();
+  });
 });

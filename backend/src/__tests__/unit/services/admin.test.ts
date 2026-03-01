@@ -128,4 +128,28 @@ describe("AdminUserService Unit Tests", () => {
     expect(result.pagination).toEqual({ page: 1, size: 10, total: 2, totalPages: 1 });
     expect(result.users).toHaveLength(2);
   });
+
+  test("updateOneUser - should throw 404 if user not found", async () => {
+    getUserByIdSpy.mockResolvedValue(null);
+
+    await expect(
+      adminUserService.updateOneUser("nonexistent", { username: "newname" })
+    ).rejects.toThrow("User not found");
+  });
+
+  test("deleteOneUser - should throw 404 if user not found", async () => {
+    getUserByIdSpy.mockResolvedValue(null);
+
+    await expect(adminUserService.deleteOneUser("nonexistent")).rejects.toThrow("User not found");
+  });
+
+  test("getAllUsersPaginated - should use default pagination when not provided", async () => {
+    getAllUsersPaginatedSpy.mockResolvedValue({ users: [], total: 0 });
+
+    const result = await adminUserService.getAllUsersPaginated();
+
+    expect(getAllUsersPaginatedSpy).toHaveBeenCalledWith(1, 10, undefined);
+    expect(result.pagination.page).toBe(1);
+    expect(result.pagination.size).toBe(10);
+  });
 });
