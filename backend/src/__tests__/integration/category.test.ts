@@ -57,4 +57,11 @@ describe("User Category Integration Tests", () => {
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveProperty("name", "UserCategory");
   });
+
+  test("GET /api/categories - should not allow access without token", async () => {
+    const res = await request(app).get("/api/categories");
+
+    expect([401, 403]).toContain(res.status);
+    expect(res.body.success).toBe(false);
+  });
 });

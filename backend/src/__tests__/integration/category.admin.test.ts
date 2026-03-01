@@ -50,6 +50,16 @@ describe("Admin Category Integration Tests", () => {
         categoryId = res.body.data._id;
     });
 
+    test("POST /api/admin/categories - should not create duplicate category", async () => {
+        const res = await request(app)
+            .post("/api/admin/categories")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({ name: "AdminCategory" }); // already exists (case-insensitive)
+
+        expect(res.status).toBe(409);
+        expect(res.body.success).toBe(false);
+    });
+
     test("PUT /api/admin/categories/:id - admin updates a category", async () => {
         const res = await request(app)
             .put(`/api/admin/categories/${categoryId}`)
@@ -59,5 +69,24 @@ describe("Admin Category Integration Tests", () => {
         expect(res.status).toBe(200);
         expect(res.body.success).toBe(true);
         expect(res.body.data).toHaveProperty("name", "updatedadmincategory");
+    });
+
+    test("DELETE /api/admin/categories/:id - admin deletes category", async () => {
+        const res = await request(app)
+            .delete(`/api/admin/categories/${categoryId}`)
+            .set("Authorization", `Bearer ${adminToken}`);
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+    });
+
+    test("PUT /api/admin/categories/:id - should return 404 for non-existing category", async () => {
+        const res = await request(app)
+            .put("/api/admin/categories/64f0f0f0f0f0f0f0f0f0f0f0")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({ name: "AnotherCategory" });
+
+        expect(res.status).toBe(404);
+        expect(res.body.success).toBe(false);
     });
 });
