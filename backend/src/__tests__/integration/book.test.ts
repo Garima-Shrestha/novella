@@ -91,6 +91,13 @@ describe("User Book Integration Tests", () => {
       expect(res.status).toBe(404);
       expect(res.body).toHaveProperty("success", false);
     });
+
+    test("should not fetch single book without token", async () => {
+      const res = await request(app).get(`/api/books/${bookId}`);
+
+      expect([401, 403]).toContain(res.status);
+      expect(res.body).toHaveProperty("success", false);
+    });
   });
 
   describe("GET /api/books", () => {
@@ -114,6 +121,39 @@ describe("User Book Integration Tests", () => {
       expect(res.body).toHaveProperty("success", true);
       expect(res.body.data.length).toBeGreaterThan(0);
       expect(res.body.data[0]).toHaveProperty("title", "User View Book");
+    });
+
+    test("should not fetch books without token", async () => {
+      const res = await request(app).get("/api/books?page=1&size=10");
+
+      expect([401, 403]).toContain(res.status);
+      expect(res.body).toHaveProperty("success", false);
+    });
+
+    test("should search by author", async () => {
+      const res = await request(app)
+        .get(`/api/books?searchTerm=${encodeURIComponent("Author Two")}`)
+        .set("Authorization", `Bearer ${userToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty("success", true);
+      expect(res.body.data.length).toBeGreaterThan(0);
+      expect(res.body.data[0]).toHaveProperty("author", "Author Two");
+    });
+
+        test("should return pagination meta fields", async () => {
+      const res = await request(app)
+        .get("/api/books?page=1&size=10")
+        .set("Authorization", `Bearer ${userToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty("success", true);
+
+      expect(res.body).toHaveProperty("pagination");
+      expect(res.body.pagination).toHaveProperty("page");
+      expect(res.body.pagination).toHaveProperty("size");
+      expect(res.body.pagination).toHaveProperty("total");
+      expect(res.body.pagination).toHaveProperty("totalPages");
     });
   });
 });
