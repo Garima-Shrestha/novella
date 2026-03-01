@@ -178,6 +178,65 @@ describe("Admin User Integration Tests", () => {
         });
     });
 
+    describe("GET /api/admin/users/:id (Not Found)", () => {
+        test("should return 404 for non-existing user id", async () => {
+        const res = await request(app)
+            .get("/api/admin/users/64f0f0f0f0f0f0f0f0f0f0f0")
+            .set("Authorization", `Bearer ${adminToken}`);
+
+        expect(res.status).toBe(404);
+        expect(res.body).toHaveProperty("success", false);
+        });
+    });
+
+    describe("DELETE /api/admin/users/:id (Not Found)", () => {
+        test("should return 404 for non-existing user id", async () => {
+        const res = await request(app)
+            .delete("/api/admin/users/64f0f0f0f0f0f0f0f0f0f0f0")
+            .set("Authorization", `Bearer ${adminToken}`);
+
+        expect(res.status).toBe(404);
+        expect(res.body).toHaveProperty("success", false);
+        });
+    });
+
+    describe("GET /api/admin/users (Search)", () => {
+        test("should search users by username", async () => {
+        const res = await request(app)
+            .get("/api/admin/users?page=1&size=10&searchTerm=updatedadmin")
+            .set("Authorization", `Bearer ${adminToken}`);
+
+        expect(res.status).toBe(200);
+        expect(res.body).toHaveProperty("success", true);
+        expect(res.body).toHaveProperty("pagination");
+        expect(Array.isArray(res.body.data)).toBe(true);
+        });
+    });
+
+    describe("PUT /api/admin/users/:id (Not Found)", () => {
+        test("should return 404 for non-existing user id", async () => {
+        const res = await request(app)
+            .put("/api/admin/users/64f0f0f0f0f0f0f0f0f0f0f0")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({ username: "ghostuser" });
+
+        expect(res.status).toBe(404);
+        expect(res.body).toHaveProperty("success", false);
+        });
+    });
+
+    describe("POST /api/admin/users (Validation)", () => {
+        test("should return 400 for missing required fields", async () => {
+        const res = await request(app)
+            .post("/api/admin/users")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({ username: "ab" });
+
+        expect(res.status).toBe(400);
+        expect(res.body).toHaveProperty("success", false);
+        });
+    });
+
     describe("GET /api/admin/users (Unauthorized)", () => {
         test("should not allow access without token", async () => {
         const res = await request(app).get("/api/admin/users?page=1&size=10");
@@ -204,6 +263,30 @@ describe("Admin User Integration Tests", () => {
 
         expect(res.status).toBe(403);
         expect(res.body).toHaveProperty("success", false);
+        });
+    });
+
+    describe("GET /api/admin/users (Search)", () => {
+        test("should search users by email", async () => {
+        const res = await request(app)
+            .get(`/api/admin/users?page=1&size=10&searchTerm=${adminUser.email}`)
+            .set("Authorization", `Bearer ${adminToken}`);
+
+        expect(res.status).toBe(200);
+        expect(res.body).toHaveProperty("success", true);
+        expect(res.body).toHaveProperty("pagination");
+        expect(Array.isArray(res.body.data)).toBe(true);
+        expect(res.body.data.length).toBeGreaterThan(0);
+        });
+
+        test("should return empty array for unmatched search", async () => {
+        const res = await request(app)
+            .get("/api/admin/users?page=1&size=10&searchTerm=zzznomatchzzz")
+            .set("Authorization", `Bearer ${adminToken}`);
+
+        expect(res.status).toBe(200);
+        expect(res.body).toHaveProperty("success", true);
+        expect(res.body.data).toHaveLength(0);
         });
     });
 });

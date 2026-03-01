@@ -253,4 +253,37 @@ describe("Khalti Integration Tests", () => {
       expect(res.body.data).toHaveProperty("status", "Pending");
     });
   });
+
+  test("should return 403 if userId does not match payment user", async () => {
+      const pidx = `pidx_forbidden_${uniq}`;
+      const otherUserId = new mongoose.Types.ObjectId().toString();
+
+      await KhaltiPaymentModel.create({
+        user: new mongoose.Types.ObjectId(otherUserId),
+        book: new mongoose.Types.ObjectId(bookId),
+        pidx,
+        amount: 1000,
+        purchaseOrderId: `order_forbidden_${uniq}`,
+        purchaseOrderName: `Khalti Book ${uniq}`,
+        status: "Initiated",
+        isProcessed: false,
+      });
+
+      const res = await request(app)
+        .post("/api/khalti/verify")
+        .set("Authorization", `Bearer ${userToken}`)
+        .send({ pidx });
+
+      expect(res.status).toBe(403);
+      expect(res.body).toHaveProperty("success", false);
+    });
+
+    test("should return 401 without token", async () => {
+      const res = await request(app)
+        .post("/api/khalti/verify")
+        .send({ pidx: "some_pidx" });
+
+      expect([401, 403]).toContain(res.status);
+      expect(res.body).toHaveProperty("success", false);
+    });
 });

@@ -185,4 +185,147 @@ describe("Admin BookAccess Integration Tests", () => {
       expect(res.body.data).toHaveProperty("expiresAt");
     });
   });
+
+  describe("GET /api/admin/book-access/:id (Not Found)", () => {
+    test("should return 404 for non-existing access id", async () => {
+      const res = await request(app)
+        .get("/api/admin/book-access/64f0f0f0f0f0f0f0f0f0f0f0")
+        .set("Authorization", `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(404);
+      expect(res.body).toHaveProperty("success", false);
+    });
+  });
+
+  describe("DELETE /api/admin/book-access/:id", () => {
+    test("should delete a book access successfully", async () => {
+      const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString();
+
+      const createRes = await request(app)
+        .post("/api/admin/book-access")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send({
+          user: adminId,
+          book: bookId,
+          rentedAt: new Date().toISOString(),
+          expiresAt,
+          isActive: true,
+        });
+
+      expect(createRes.status).toBe(201);
+      const deleteId = createRes.body.data?._id?.toString();
+
+      const res = await request(app)
+        .delete(`/api/admin/book-access/${deleteId}`)
+        .set("Authorization", `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty("success", true);
+    });
+
+    test("should return 404 for non-existing access id", async () => {
+      const res = await request(app)
+        .delete("/api/admin/book-access/64f0f0f0f0f0f0f0f0f0f0f0")
+        .set("Authorization", `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(404);
+      expect(res.body).toHaveProperty("success", false);
+    });
+  });
+
+  describe("GET /api/admin/book-access (Search)", () => {
+    test("should search book accesses by book title", async () => {
+      const res = await request(app)
+        .get(`/api/admin/book-access?page=1&size=10&searchTerm=Access Admin Book`)
+        .set("Authorization", `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty("success", true);
+      expect(res.body).toHaveProperty("pagination");
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+
+    test("should return empty for unmatched search", async () => {
+      const res = await request(app)
+        .get("/api/admin/book-access?page=1&size=10&searchTerm=zzznomatchzzz")
+        .set("Authorization", `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty("success", true);
+      expect(res.body.data).toHaveLength(0);
+    });
+  });
+
+  describe("GET /api/admin/book-access/available-books", () => {
+    test("should fetch available books for a user", async () => {
+      const res = await request(app)
+        .get(`/api/admin/book-access/available-books?userId=${userId}`)
+        .set("Authorization", `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty("success", true);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+
+    test("should return 400 if userId is missing", async () => {
+      const res = await request(app)
+        .get("/api/admin/book-access/available-books")
+        .set("Authorization", `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty("success", false);
+    });
+  });
+
+  describe("GET /api/admin/book-access (Unauthorized)", () => {
+    test("should not allow access without token", async () => {
+      const res = await request(app).get("/api/admin/book-access?page=1&size=10");
+
+      expect([401, 403]).toContain(res.status);
+      expect(res.body).toHaveProperty("success", false);
+    });
+  });
+
+  describe("POST /api/admin/book-access (Validation)", () => {
+    test("should return 400 for missing required fields", async () => {
+      const res = await request(app)
+        .post("/api/admin/book-access")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send({ user: userId });
+
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty("success", false);
+    });
+  });
+
+  describe("POST /api/admin/book-access (No PDF)", () => {
+    test("should return 404 if no active PDF for book", async () => {
+      const newBook = await (await import("../../models/book.model")).BookModel.create({
+        title: `No PDF Book ${uniq}`,
+        author: "No PDF Author",
+        genre: categoryId,
+        pages: 100,
+        price: 10,
+        publishedDate: "2024-01-01",
+        coverImageUrl: "/uploads/book.jpg",
+        description: "No PDF test",
+      });
+
+      const res = await request(app)
+        .post("/api/admin/book-access")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send({
+          user: userId,
+          book: newBook._id.toString(),
+          rentedAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 86400000).toISOString(),
+          isActive: true,
+        });
+
+      expect(res.status).toBe(404);
+      expect(res.body).toHaveProperty("success", false);
+
+      await (await import("../../models/book.model")).BookModel.deleteOne({ _id: newBook._id });
+    });
+  });
 });

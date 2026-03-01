@@ -1,3 +1,7 @@
+jest.mock("../../config/email", () => ({
+  sendEmail: jest.fn().mockResolvedValue(true),
+}));
+
 import request from "supertest";
 import app from "../../app";
 import { UserModel } from "../../models/user.model";
@@ -149,6 +153,107 @@ describe("Auth Integration Tests", () => {
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty("success", true);
         expect(response.body).toHaveProperty("token");
+        });
+    });
+
+    describe("GET /api/auth/whoami", () => {
+        let token = "";
+
+        beforeAll(async () => {
+        const loginResponse = await request(app)
+            .post("/api/auth/login")
+            .send({ email: testUser.email, password: newPassword });
+
+        token = loginResponse.body.token;
+        });
+
+        test("should fetch logged in user profile", async () => {
+        const response = await request(app)
+            .get("/api/auth/whoami")
+            .set("Authorization", `Bearer ${token}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("success", true);
+        expect(response.body.data).toHaveProperty("email", testUser.email);
+        });
+
+        test("should not fetch profile without token", async () => {
+        const response = await request(app).get("/api/auth/whoami");
+
+        expect([401, 403]).toContain(response.status);
+        expect(response.body).toHaveProperty("success", false);
+        });
+    });
+
+    describe("PUT /api/auth/update-profile", () => {
+        let token = "";
+
+        beforeAll(async () => {
+        const loginResponse = await request(app)
+            .post("/api/auth/login")
+            .send({ email: testUser.email, password: newPassword });
+
+        token = loginResponse.body.token;
+        });
+
+        test("should update profile successfully", async () => {
+        const response = await request(app)
+            .put("/api/auth/update-profile")
+            .set("Authorization", `Bearer ${token}`)
+            .send({ username: "updatedtestuser" });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("success", true);
+        expect(response.body.data).toHaveProperty("username", "updatedtestuser");
+        });
+
+        test("should not update profile without token", async () => {
+        const response = await request(app)
+            .put("/api/auth/update-profile")
+            .send({ username: "noupdate" });
+
+        expect([401, 403]).toContain(response.status);
+        expect(response.body).toHaveProperty("success", false);
+        });
+    });
+
+    describe("POST /api/auth/request-password-reset", () => {
+        test("should send reset email for registered user", async () => {
+        const response = await request(app)
+            .post("/api/auth/request-password-reset")
+            .send({ email: testUser.email });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("success", true);
+        });
+
+        test("should return 404 for unregistered email", async () => {
+        const response = await request(app)
+            .post("/api/auth/request-password-reset")
+            .send({ email: "notexist@example.com" });
+
+        expect(response.status).toBe(404);
+        expect(response.body).toHaveProperty("success", false);
+        });
+
+        test("should return 400 if email is missing", async () => {
+        const response = await request(app)
+            .post("/api/auth/request-password-reset")
+            .send({});
+
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty("success", false);
+        });
+    });
+
+    describe("POST /api/auth/reset-password/:token", () => {
+        test("should return 400 for invalid token", async () => {
+        const response = await request(app)
+            .post("/api/auth/reset-password/invalidtoken123")
+            .send({ newPassword: "ResetPass123!" });
+
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty("success", false);
         });
     });
 });

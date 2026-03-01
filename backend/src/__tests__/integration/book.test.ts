@@ -156,4 +156,26 @@ describe("User Book Integration Tests", () => {
       expect(res.body.pagination).toHaveProperty("totalPages");
     });
   });
+
+  describe("GET /api/books (Filter by category)", () => {
+    test("should filter books by genre/category id", async () => {
+      const res = await request(app)
+        .get(`/api/books?page=1&size=10&searchTerm=User View Book`)
+        .set("Authorization", `Bearer ${userToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty("success", true);
+      expect(res.body.data.length).toBeGreaterThan(0);
+    });
+
+    test("should return empty array for unmatched search", async () => {
+      const res = await request(app)
+        .get("/api/books?page=1&size=10&searchTerm=zzznomatchzzz")
+        .set("Authorization", `Bearer ${userToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty("success", true);
+      expect(res.body.data).toHaveLength(0);
+    });
+  });
 });

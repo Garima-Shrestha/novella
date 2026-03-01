@@ -64,4 +64,31 @@ describe("User Category Integration Tests", () => {
     expect([401, 403]).toContain(res.status);
     expect(res.body.success).toBe(false);
   });
+
+  test("GET /api/categories/:id - should return 404 for non-existing category", async () => {
+    const res = await request(app)
+      .get("/api/categories/64f0f0f0f0f0f0f0f0f0f0f0")
+      .set("Authorization", `Bearer ${userToken}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  test("GET /api/categories/:id - should return 404 for inactive category", async () => {
+    const inactive = await CategoryModel.create({ name: "InactiveCategory", isActive: false });
+
+    const res = await request(app)
+      .get(`/api/categories/${inactive._id.toString()}`)
+      .set("Authorization", `Bearer ${userToken}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  test("GET /api/categories/:id - should not allow access without token", async () => {
+    const res = await request(app).get(`/api/categories/${categoryId}`);
+
+    expect([401, 403]).toContain(res.status);
+    expect(res.body.success).toBe(false);
+  });
 });

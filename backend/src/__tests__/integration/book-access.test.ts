@@ -157,4 +157,67 @@ describe("User BookAccess Integration Tests", () => {
       expect(res.body.data.lastPosition).toHaveProperty("offsetY", 250);
     });
   });
+
+  describe("GET /api/book-access (Unauthorized)", () => {
+    test("should not allow access without token", async () => {
+      const res = await request(app).get("/api/book-access?page=1&size=10");
+
+      expect([401, 403]).toContain(res.status);
+      expect(res.body).toHaveProperty("success", false);
+    });
+  });
+
+  describe("GET /api/book-access/:bookId (Not Found)", () => {
+    test("should return 404 for book not rented", async () => {
+      const res = await request(app)
+        .get("/api/book-access/64f0f0f0f0f0f0f0f0f0f0f0")
+        .set("Authorization", `Bearer ${userToken}`);
+
+      expect(res.status).toBe(404);
+      expect(res.body).toHaveProperty("success", false);
+    });
+  });
+
+  describe("POST /api/book-access/:bookId/bookmarks (Unauthorized)", () => {
+    test("should not allow adding bookmark without token", async () => {
+      const res = await request(app)
+        .post(`/api/book-access/${bookId}/bookmarks`)
+        .send({ page: 2, text: "Unauthorized bookmark" });
+
+      expect([401, 403]).toContain(res.status);
+      expect(res.body).toHaveProperty("success", false);
+    });
+  });
+
+  describe("PATCH /api/book-access/:bookId/last-position (Unauthorized)", () => {
+    test("should not allow updating position without token", async () => {
+      const res = await request(app)
+        .patch(`/api/book-access/${bookId}/last-position`)
+        .send({ page: 5, offsetY: 250, zoom: 1.2 });
+
+      expect([401, 403]).toContain(res.status);
+      expect(res.body).toHaveProperty("success", false);
+    });
+  });
+
+  describe("GET /api/book-access (My Library)", () => {
+    test("should fetch user library", async () => {
+      const res = await request(app)
+        .get("/api/book-access/my-library?page=1&size=10")
+        .set("Authorization", `Bearer ${userToken}`);
+
+      expect([200, 404]).toContain(res.status);
+    });
+  });
+
+  describe("DELETE /api/book-access/:bookId/bookmarks (Not Found)", () => {
+    test("should handle removing bookmark from non-rented book", async () => {
+      const res = await request(app)
+        .delete("/api/book-access/64f0f0f0f0f0f0f0f0f0f0f0/bookmarks")
+        .set("Authorization", `Bearer ${userToken}`)
+        .send({ index: 0 });
+
+      expect([200, 404]).toContain(res.status);
+    });
+  });
 });

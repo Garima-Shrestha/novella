@@ -118,4 +118,72 @@ describe("Admin Book Integration Tests", () => {
             expect(res.body).toHaveProperty("success", true);
         });
     });
+
+    describe("GET /api/admin/books/:id (Not Found)", () => {
+        test("should return 404 for non-existing book id", async () => {
+            const res = await request(app)
+                .get("/api/admin/books/64f0f0f0f0f0f0f0f0f0f0f0")
+                .set("Authorization", `Bearer ${adminToken}`);
+
+            expect(res.status).toBe(404);
+            expect(res.body).toHaveProperty("success", false);
+        });
+    });
+
+    describe("PUT /api/admin/books/:id (Not Found)", () => {
+        test("should return 404 for non-existing book id", async () => {
+            const res = await request(app)
+                .put("/api/admin/books/64f0f0f0f0f0f0f0f0f0f0f0")
+                .set("Authorization", `Bearer ${adminToken}`)
+                .send({ title: "Ghost Book" });
+
+            expect(res.status).toBe(404);
+            expect(res.body).toHaveProperty("success", false);
+        });
+    });
+
+    describe("DELETE /api/admin/books/:id (Not Found)", () => {
+        test("should return 404 for non-existing book id", async () => {
+            const res = await request(app)
+                .delete("/api/admin/books/64f0f0f0f0f0f0f0f0f0f0f0")
+                .set("Authorization", `Bearer ${adminToken}`);
+
+            expect(res.status).toBe(404);
+            expect(res.body).toHaveProperty("success", false);
+        });
+    });
+
+    describe("GET /api/admin/books (Search)", () => {
+        test("should search books by title", async () => {
+            const res = await request(app)
+                .get("/api/admin/books?page=1&size=10&searchTerm=Sample")
+                .set("Authorization", `Bearer ${adminToken}`);
+
+            expect(res.status).toBe(200);
+            expect(res.body).toHaveProperty("success", true);
+            expect(Array.isArray(res.body.data)).toBe(true);
+        });
+    });
+
+    describe("GET /api/admin/books (Search by author)", () => {
+        test("should search books by author", async () => {
+            const res = await request(app)
+                .get("/api/admin/books?page=1&size=10&searchTerm=Author One")
+                .set("Authorization", `Bearer ${adminToken}`);
+
+            expect(res.status).toBe(200);
+            expect(res.body).toHaveProperty("success", true);
+            expect(Array.isArray(res.body.data)).toBe(true);
+        });
+
+        test("should return empty for unmatched search", async () => {
+            const res = await request(app)
+                .get("/api/admin/books?page=1&size=10&searchTerm=zzznomatchzzz")
+                .set("Authorization", `Bearer ${adminToken}`);
+
+            expect(res.status).toBe(200);
+            expect(res.body).toHaveProperty("success", true);
+            expect(res.body.data).toHaveLength(0);
+        });
+    });
 });
