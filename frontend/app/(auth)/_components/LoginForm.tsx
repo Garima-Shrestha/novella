@@ -135,7 +135,7 @@ export default function LoginForm(){
     useEffect(() => {
         if (!loading && user) {
             if (user.role === "admin") {
-            router.replace("/admin/users");
+            router.replace("/admin/dashboard");
             } else {
             router.replace("/homepage");
             }

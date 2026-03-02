@@ -37,7 +37,7 @@ export async function proxy(request: NextRequest) {
     // Prevent logged-in users from accessing public pages like /login or /register
     if (isPublicRoute && token && user) {
         if (user.role === "admin") {
-            return NextResponse.redirect(new URL("/admin/users", request.url));
+            return NextResponse.redirect(new URL("/admin/dashboard", request.url));
         }
         return NextResponse.redirect(new URL("/homepage", request.url));
     }   
@@ -57,5 +57,7 @@ export const config = {
         '/reset-password/:path*',
         '/category/:path*',
         '/books-before-renting/:path*',
+        '/book-access/:path*', 
+        '/payment/:path*'
     ]
 }
