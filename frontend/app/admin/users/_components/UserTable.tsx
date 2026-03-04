@@ -413,27 +413,29 @@ export default function UserTable(
                 </td>
 
                 <td className="p-4 text-sm text-gray-800">{user.phone}</td>
-                <td className="p-4 space-x-2">
-                  <Link
-                    href={`/admin/users/${user._id}`}
-                    className="text-xs text-blue-600 border border-blue-600 px-3 py-1.5 rounded font-bold uppercase hover:bg-blue-50"
-                  >
-                    View
-                  </Link>
+                <td className="p-4">
+                  <div className="flex items-center gap-2 flex-nowrap">
+                    <Link
+                      href={`/admin/users/${user._id}`}
+                      className="text-xs text-blue-600 border border-blue-600 px-3 py-1.5 rounded font-bold uppercase hover:bg-blue-50 whitespace-nowrap"
+                    >
+                      View
+                    </Link>
 
-                  <Link
-                    href={`/admin/users/${user._id}/edit`}
-                    className="text-xs text-white bg-blue-600 px-3 py-1.5 rounded font-bold uppercase hover:bg-blue-700"
-                  >
-                    Edit
-                  </Link>
+                    <Link
+                      href={`/admin/users/${user._id}/edit`}
+                      className="text-xs text-white bg-blue-600 px-3 py-1.5 rounded font-bold uppercase hover:bg-blue-700 whitespace-nowrap"
+                    >
+                      Edit
+                    </Link>
 
-                  <button
-                    onClick={() => setDeleteId(user._id)}
-                    className="text-xs text-white bg-red-600 px-3 py-1.5 rounded font-bold uppercase hover:bg-red-700"
-                  >
-                    Delete
-                  </button>
+                    <button
+                      onClick={() => setDeleteId(user._id)}
+                      className="text-xs text-white bg-red-600 px-3 py-1.5 rounded font-bold uppercase hover:bg-red-700 whitespace-nowrap"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
