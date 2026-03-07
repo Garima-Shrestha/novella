@@ -18,13 +18,32 @@ export class KhaltiService {
       purchase_order_name: string;
       customer_info?: { name?: string; email?: string; phone?: string };
     }) {
+      // const existingActive = await bookAccessRepo.getActiveAccessByUserAndBook(
+      //   data.userId,
+      //   data.bookId
+      // );
+
+      // if (existingActive) {
+      //   throw new HttpError(409, "User already has active access to this book");
+      // }
+
       const existingActive = await bookAccessRepo.getActiveAccessByUserAndBook(
-        data.userId,
-        data.bookId
+          data.userId, data.bookId
       );
 
       if (existingActive) {
-        throw new HttpError(409, "User already has active access to this book");
+          const now = new Date();
+          const exp = existingActive.expiresAt ? new Date(existingActive.expiresAt) : null;
+          const isExpired = !!(exp && exp.getTime() <= now.getTime());
+
+          if (!isExpired) {
+              throw new HttpError(409, "User already has active access to this book");
+          }
+
+          await bookAccessRepo.updateOneBookAccess(
+              existingActive._id.toString(),
+              { isActive: false }
+          );
       }
 
       if (!KHALTI_SECRET_KEY) {
